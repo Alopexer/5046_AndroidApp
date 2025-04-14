@@ -46,7 +46,7 @@ fun MainScreen() {
         ) {
             composable(NavItem.Home.route) { HomeScreen() }
             composable(NavItem.Other.route) { OtherScreen() }
-//            composable(NavItem.Profile.route) { ProfileScreen() }
+            composable(NavItem.Profile.route) { ProfileScreen() }
             composable(NavItem.Login.route) { LoginScreen() }
         }
     }
