@@ -34,15 +34,21 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun LoginScreen() {
-    LoginRegisterScreen() // 重用你写好的 UI
+    LoginRegisterScreen()
 }
+
 
 @Composable
 fun LoginRegisterScreen() {
     var isLogin by remember { mutableStateOf(true) }
+
+    var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
+    var phone by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
+    var errorText by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -58,6 +64,28 @@ fun LoginRegisterScreen() {
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // 注册界面才显示用户名和手机号
+        if (!isLogin) {
+            OutlinedTextField(
+                value = username,
+                onValueChange = { username = it },
+                label = { Text("Username") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            OutlinedTextField(
+                value = phone,
+                onValueChange = { phone = it },
+                label = { Text("Phone (e.g. 0412345678)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
@@ -66,7 +94,6 @@ fun LoginRegisterScreen() {
             singleLine = true,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
@@ -77,20 +104,54 @@ fun LoginRegisterScreen() {
             singleLine = true,
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = {
-                val image = if (showPassword)
-                    Icons.Default.Visibility
-                else Icons.Default.VisibilityOff
-
                 IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(imageVector = image, contentDescription = "Toggle password visibility")
+                    Icon(
+                        imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = "Toggle password visibility"
+                    )
                 }
             }
         )
 
+        if (!isLogin) {
+            Spacer(modifier = Modifier.height(16.dp))
+            OutlinedTextField(
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                label = { Text("Confirm Password") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
+            )
+        }
+
+        if (errorText.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(text = errorText, color = MaterialTheme.colorScheme.error)
+        }
+
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
-            onClick = { /* TODO: handle login/register */ },
+            onClick = {
+                errorText = ""
+
+                if (isLogin) {
+                    // TODO: 登录逻辑
+                } else {
+                    // ⚠️ 校验逻辑
+                    when {
+                        username.isBlank() -> errorText = "Username is required"
+                        !isValidPhone(phone) -> errorText = "Invalid phone number"
+                        !isValidEmail(email) -> errorText = "Invalid email format"
+                        !isStrongPassword(password) -> errorText = "Password must contain uppercase, lowercase, number, and be at least 8 characters"
+                        password != confirmPassword -> errorText = "Passwords do not match"
+                        else -> {
+                            // TODO: 执行注册逻辑
+                        }
+                    }
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = if (isLogin) "Login" else "Register")
@@ -103,11 +164,27 @@ fun LoginRegisterScreen() {
         ) {
             Text(text = if (isLogin) "Don't have an account?" else "Already have an account?")
             Spacer(modifier = Modifier.width(8.dp))
-            TextButton(onClick = { isLogin = !isLogin }) {
+            TextButton(onClick = {
+                isLogin = !isLogin
+                password = ""
+                confirmPassword = ""
+                errorText = ""
+            }) {
                 Text(text = if (isLogin) "Register" else "Login")
             }
         }
     }
 }
 
+fun isValidEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
 
+fun isValidPhone(phone: String): Boolean {
+    return phone.matches(Regex("^0[0-9]{9}$"))
+}
+
+fun isStrongPassword(password: String): Boolean {
+    val pattern = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$")
+    return pattern.containsMatchIn(password)
+}
