@@ -60,22 +60,40 @@ fun HomeScreen() {
 
 @Composable
 fun HealthSummarySection() {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(12.dp))
-            HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(12.dp))
-            HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Last Running Record",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+            }
         }
     }
 }
+
 
 
 @Composable
@@ -93,6 +111,8 @@ fun HealthBox(title: String, value: String, backgroundColor: Color, modifier: Mo
         }
     }
 }
+
+
 
 
 
