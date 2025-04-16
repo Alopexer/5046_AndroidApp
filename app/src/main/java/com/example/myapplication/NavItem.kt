@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DirectionsRun
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Lock
@@ -13,11 +14,10 @@ sealed class NavItem(
     val icon: ImageVector
 ) {
     object Home : NavItem("home", "Home", Icons.Default.Home)
-    object Other : NavItem("other", "Other", Icons.Default.List)
+    object Run : NavItem("run", "run", Icons.Default.DirectionsRun)
     object Profile : NavItem("profile", "Profile", Icons.Default.Person)
-    object Login : NavItem("login", "Login", Icons.Default.Lock)
 
     companion object {
-        val items = listOf(Home, Other, Profile, Login)
+        val items = listOf(Home, Run, Profile)
     }
 }
