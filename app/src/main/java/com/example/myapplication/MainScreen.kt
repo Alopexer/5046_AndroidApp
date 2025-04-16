@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -27,7 +29,7 @@ fun MainScreen() {
                     NavigationBarItem(
                         icon = { Icon(item.icon, contentDescription = item.label) },
                         label = { Text(item.label) },
-                        selected = currentRoute == item.route,
+                        selected = currentRoute?.startsWith(item.route) == true,
                         onClick = {
                             navController.navigate(item.route) {
                                 popUpTo(navController.graph.startDestinationId) { inclusive = false }
@@ -45,9 +47,10 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavItem.Home.route) { HomeScreen() }
-            composable(NavItem.Other.route) { OtherScreen() }
-            composable(NavItem.Profile.route) { ProfileScreen() }
-            composable(NavItem.Login.route) { LoginScreen() }
+            composable(NavItem.Run.route) { RunningScreen(navController) }
+            composable(NavItem.Profile.route) { ProfileScreen(navController, true) }
+            composable("profile/login") { LoginScreen(navController, true) }
+            composable("run/run-plan") { RunningPlanCreateScreen(navController) }
         }
     }
 }
