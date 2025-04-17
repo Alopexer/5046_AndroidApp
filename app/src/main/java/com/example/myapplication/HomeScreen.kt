@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,36 +47,67 @@ fun HomeScreen() {
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .navigationBarsPadding()
         ) {
             HealthSummarySection()
-            Spacer(modifier = Modifier.height(24.dp))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "News",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
             PlanRecommendationCards()
         }
     }
 }
 
+
+
 @Composable
 fun HealthSummarySection() {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(12.dp))
-            HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(12.dp))
-            HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Last Running Record",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+            }
         }
     }
 }
+
 
 
 @Composable
@@ -93,6 +125,8 @@ fun HealthBox(title: String, value: String, backgroundColor: Color, modifier: Mo
         }
     }
 }
+
+
 
 
 
