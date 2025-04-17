@@ -125,7 +125,7 @@ fun RunningScreen(navController: NavController) {
 
         Spacer(modifier = Modifier.height(8.dp))
         Button(
-            onClick = { /* 开始跑步 */ },
+            onClick = { navController.navigate("run/map") },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Icon(Icons.Default.DirectionsRun, contentDescription = "Run")
