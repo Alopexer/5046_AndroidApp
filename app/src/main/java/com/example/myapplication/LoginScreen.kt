@@ -31,16 +31,17 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 
 @Composable
-fun LoginScreen() {
-    LoginRegisterScreen()
+fun LoginScreen(navController: NavController, goLogin: Boolean) {
+    LoginRegisterScreen(navController, goLogin)
 }
 
 
 @Composable
-fun LoginRegisterScreen() {
-    var isLogin by remember { mutableStateOf(true) }
+fun LoginRegisterScreen(navController: NavController, goLogin: Boolean) {
+    var isLogin by remember { mutableStateOf(goLogin) }
 
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -138,6 +139,7 @@ fun LoginRegisterScreen() {
 
                 if (isLogin) {
                     // TODO: 登录逻辑
+                    navController.navigate("profile")
                 } else {
                     // ⚠️ 校验逻辑
                     when {
