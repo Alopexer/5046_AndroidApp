@@ -51,6 +51,7 @@ fun MainScreen() {
             composable(NavItem.Profile.route) { ProfileScreen(navController, true) }
             composable("profile/login") { LoginScreen(navController, true) }
             composable("run/run-plan") { RunningPlanCreateScreen(navController) }
+            composable("run/map") { OtherScreen() }
         }
     }
 }
