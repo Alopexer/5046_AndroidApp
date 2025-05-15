@@ -28,15 +28,16 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.example.myapplication.data.AppDatabase
-import com.example.myapplication.data.UserRepository
+import com.example.myapplication.data.UserEntity
+import com.example.myapplication.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+
 
 @Composable
 fun LoginScreen(
@@ -62,11 +63,8 @@ fun LoginRegisterScreen(
     var showPassword by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
 
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val db = remember { AppDatabase.getDatabase(context) }
-    val userDao = remember { db.userDao() }
-    val repository = remember { UserRepository(userDao) }
+    val userViewModel: UserViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -154,16 +152,12 @@ fun LoginRegisterScreen(
                 errorText = ""
                 scope.launch {
                     if (isLogin) {
-                        val success = repository.login(username, password)
-                        if (success) {
-                            val user = userDao.getUserByUsername(username)
-                            user?.let {
-                                onLoginSuccess(it.email)
-                            } ?: run {
-                                errorText = "User not found"
+                        userViewModel.login(email, password) { user ->
+                            if (user != null) {
+                                onLoginSuccess(user.email)
+                            } else {
+                                errorText = "Invalid email or password"
                             }
-                        } else {
-                            errorText = "Invalid username or password"
                         }
                     } else {
                         when {
@@ -173,12 +167,19 @@ fun LoginRegisterScreen(
                             !isStrongPassword(password) -> errorText = "Password too weak"
                             password != confirmPassword -> errorText = "Passwords do not match"
                             else -> {
-                                val result = repository.register(username, phone, email, password)
-                                if (result == null) {
-                                    isLogin = true
-                                    errorText = "Registered successfully. Please log in."
-                                } else {
-                                    errorText = result
+                                val newUser = UserEntity(
+                                    username = username,
+                                    phone = phone,
+                                    email = email,
+                                    password = password
+                                )
+                                userViewModel.register(newUser) { success ->
+                                    if (success) {
+                                        isLogin = true
+                                        errorText = "Registered successfully. Please log in."
+                                    } else {
+                                        errorText = "Username or email already exists"
+                                    }
                                 }
                             }
                         }
