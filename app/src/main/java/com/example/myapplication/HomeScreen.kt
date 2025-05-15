@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,11 +36,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Welcome, Runner") })
@@ -65,7 +66,7 @@ fun HomeScreen() {
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            PlanRecommendationCards()
+            PlanRecommendationCards(navController)
         }
     }
 }
@@ -131,36 +132,53 @@ fun HealthBox(title: String, value: String, backgroundColor: Color, modifier: Mo
 
 
 @Composable
-fun PlanRecommendationCards() {
+fun PlanRecommendationCards(navController: NavController) {
     Column {
         PlanCard(
             title = "Beginner Running Plan",
             subtitle = "15 minutes a day, easy to start",
             description = "Great for new runners!",
-            imageRes = R.drawable.running_beginner
+            imageRes = R.drawable.running_beginner,
+            newsId = "1",
+            navController = navController
         )
         PlanCard(
             title = "5KM Training",
             subtitle = "Build up gradually",
             description = "Improve endurance week by week.",
-            imageRes = R.drawable.training_5km
+            imageRes = R.drawable.training_5km,
+            newsId = "2",
+            navController = navController
         )
         PlanCard(
             title = "Fat Loss + Running",
             subtitle = "Cardio meets clean eating",
             description = "Follow for real results.",
-            imageRes = R.drawable.fatburn_run
+            imageRes = R.drawable.fatburn_run,
+            newsId = "3",
+            navController = navController
         )
     }
 }
 
 
+
 @Composable
-fun PlanCard(title: String, subtitle: String, description: String, imageRes: Int) {
+fun PlanCard(
+    title: String,
+    subtitle: String,
+    description: String,
+    imageRes: Int,
+    newsId: String,
+    navController: NavController
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable {
+                navController.navigate("newsDetail/$newsId")
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -204,4 +222,3 @@ fun PlanCard(title: String, subtitle: String, description: String, imageRes: Int
         }
     }
 }
-

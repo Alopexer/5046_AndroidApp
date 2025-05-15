@@ -59,8 +59,9 @@ fun MainScreen() {
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavItem.Home.route) {
-                HomeScreen()
+                HomeScreen(navController)
             }
+
 
             composable(NavItem.Run.route) {
                 RunningScreen(navController)
