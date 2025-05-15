@@ -14,6 +14,15 @@ class RunningPlanViewModel(application: Application) : AndroidViewModel(applicat
 
     fun getPlansByEmail(email: String): Flow<List<RunningPlan>> = repository.getPlansByEmail(email)
 
+    fun getLatestPlanByEmail(
+        email: String,
+        onResult: (RunningPlan?) -> Unit
+    ) = viewModelScope.launch(Dispatchers.IO) {
+        val latestPlan = repository.getLatestPlanByEmail(email)
+        onResult(latestPlan)
+    }
+
+
     fun insert(plan: RunningPlan) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(plan)
     }
@@ -23,6 +32,6 @@ class RunningPlanViewModel(application: Application) : AndroidViewModel(applicat
     }
 
     fun update(plan: RunningPlan) = viewModelScope.launch(Dispatchers.IO) {
-        repository.update(plan) // ➤ 新增
+        repository.update(plan)
     }
 }
