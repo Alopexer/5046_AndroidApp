@@ -173,12 +173,12 @@ fun LoginRegisterScreen(
                             !isStrongPassword(password) -> errorText = "Password too weak"
                             password != confirmPassword -> errorText = "Passwords do not match"
                             else -> {
-                                val success = repository.register(username, phone, email, password)
-                                if (success) {
+                                val result = repository.register(username, phone, email, password)
+                                if (result == null) {
                                     isLogin = true
                                     errorText = "Registered successfully. Please log in."
                                 } else {
-                                    errorText = "Username already registered"
+                                    errorText = result
                                 }
                             }
                         }

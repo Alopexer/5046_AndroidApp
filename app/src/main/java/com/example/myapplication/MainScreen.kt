@@ -16,6 +16,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myapplication.data.RunningPlanViewModel
 
 @Composable
 fun MainScreen() {
@@ -23,7 +25,7 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     var userEmail by rememberSaveable { mutableStateOf("") }
-
+    val runningPlanViewModel: RunningPlanViewModel = viewModel()
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -87,7 +89,7 @@ fun MainScreen() {
             }
 
             composable("run/run-plan") {
-                RunningPlanCreateScreen(navController)
+                RunningPlanCreateScreen(navController, runningPlanViewModel)
             }
 
             composable("run/map") {

@@ -1,7 +1,9 @@
 package com.example.myapplication
 
+import android.app.Application
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -19,18 +21,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.myapplication.data.RunningPlan
+import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun RunningPlanCreateScreen(navController: NavController) {
+fun RunningPlanCreateScreen(navController: NavController, runningPlanViewModel: RunningPlanViewModel) {
     val context = LocalContext.current
     var distance by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     var selectedDateTime by remember { mutableStateOf("") }
-
-    // 保存时间选择结果
+    val userEmail: String = "test@gmail.com"
     val calendar = remember { Calendar.getInstance() }
 
     Column(
@@ -43,8 +46,8 @@ fun RunningPlanCreateScreen(navController: NavController) {
         Column (
             modifier = Modifier
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center, // 垂直居中
-            horizontalAlignment = Alignment.CenterHorizontally // 水平居中
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("Plan start date: $selectedDateTime",style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Bold))
@@ -125,7 +128,7 @@ fun RunningPlanCreateScreen(navController: NavController) {
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                modifier = Modifier.width(110.dp) // 固定宽度避免挤压
+                modifier = Modifier.width(110.dp)
             )
 
             OutlinedTextField(
@@ -141,7 +144,19 @@ fun RunningPlanCreateScreen(navController: NavController) {
 
         Button(
             onClick = {
-                // TODO: 保存逻辑
+                if (selectedDateTime.isNotBlank() && distance.isNotBlank() && duration.isNotBlank()) {
+                    val newPlan = RunningPlan(
+                        dateTime = selectedDateTime,
+                        distance = "$distance km",
+                        duration = "$duration min",
+                        email = userEmail,
+                        isCompleted = false
+                    )
+                    runningPlanViewModel.insert(newPlan)
+                    navController.popBackStack() // 返回上一页
+                } else {
+                    Toast.makeText(context, "Please complete all fields", Toast.LENGTH_SHORT).show()
+                }
             },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
@@ -165,7 +180,8 @@ fun RunningPlanCreateScreen(navController: NavController) {
 @Composable
 fun CreatePreview() {
     val navController = rememberNavController()
+    val runningPlanViewModel = RunningPlanViewModel(Application())
     MyApplicationTheme {
-        RunningPlanCreateScreen(navController)
+        RunningPlanCreateScreen(navController, runningPlanViewModel)
     }
 }
