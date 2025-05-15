@@ -6,18 +6,14 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.*
 import com.example.myapplication.data.RunningPlanViewModel
+import com.example.myapplication.screens.*
+import androidx.compose.runtime.saveable.rememberSaveable
+
 
 @Composable
 fun MainScreen() {
@@ -26,6 +22,7 @@ fun MainScreen() {
     val currentRoute = navBackStackEntry?.destination?.route
     var userEmail by rememberSaveable { mutableStateOf("") }
     val runningPlanViewModel: RunningPlanViewModel = viewModel()
+
     Scaffold(
         bottomBar = {
             NavigationBar {
@@ -64,14 +61,13 @@ fun MainScreen() {
                 HomeScreen(navController)
             }
 
-
             composable(NavItem.Run.route) {
                 RunningScreen(navController)
             }
 
             composable("profile/{email}") { backStackEntry ->
                 val email = backStackEntry.arguments?.getString("email") ?: ""
-                userEmail = email // Save for later use
+                userEmail = email
                 ProfileScreen(navController, email = email, isLogin = true)
             }
 
@@ -94,6 +90,12 @@ fun MainScreen() {
 
             composable("run/map") {
                 OtherScreen()
+            }
+
+            // ✅ 添加 News Detail 路由
+            composable("newsDetail/{newsId}") { backStackEntry ->
+                val newsId = backStackEntry.arguments?.getString("newsId")
+                NewsDetailScreen(newsId = newsId, navController = navController)
             }
         }
     }
