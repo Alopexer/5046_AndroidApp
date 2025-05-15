@@ -2,6 +2,7 @@ package com.example.myapplication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -34,11 +36,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-
+import androidx.navigation.NavController
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Welcome, Runner") })
@@ -46,36 +48,67 @@ fun HomeScreen() {
     ) { innerPadding ->
         Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp)
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
+                .navigationBarsPadding()
         ) {
             HealthSummarySection()
-            Spacer(modifier = Modifier.height(24.dp))
-            PlanRecommendationCards()
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Text(
+                text = "News",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            PlanRecommendationCards(navController)
         }
     }
 }
 
+
+
 @Composable
 fun HealthSummarySection() {
-    Column(
-        modifier = Modifier.fillMaxWidth()
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 16.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        shape = RoundedCornerShape(16.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth()) {
-            HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(12.dp))
-            HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(modifier = Modifier.fillMaxWidth()) {
-            HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
-            Spacer(modifier = Modifier.width(12.dp))
-            HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Last Running Record",
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Black,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(modifier = Modifier.fillMaxWidth()) {
+                HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
+                Spacer(modifier = Modifier.width(12.dp))
+                HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+            }
         }
     }
 }
+
 
 
 @Composable
@@ -96,37 +129,56 @@ fun HealthBox(title: String, value: String, backgroundColor: Color, modifier: Mo
 
 
 
+
+
 @Composable
-fun PlanRecommendationCards() {
+fun PlanRecommendationCards(navController: NavController) {
     Column {
         PlanCard(
             title = "Beginner Running Plan",
             subtitle = "15 minutes a day, easy to start",
             description = "Great for new runners!",
-            imageRes = R.drawable.running_beginner
+            imageRes = R.drawable.running_beginner,
+            newsId = "1",
+            navController = navController
         )
         PlanCard(
             title = "5KM Training",
             subtitle = "Build up gradually",
             description = "Improve endurance week by week.",
-            imageRes = R.drawable.training_5km
+            imageRes = R.drawable.training_5km,
+            newsId = "2",
+            navController = navController
         )
         PlanCard(
             title = "Fat Loss + Running",
             subtitle = "Cardio meets clean eating",
             description = "Follow for real results.",
-            imageRes = R.drawable.fatburn_run
+            imageRes = R.drawable.fatburn_run,
+            newsId = "3",
+            navController = navController
         )
     }
 }
 
 
+
 @Composable
-fun PlanCard(title: String, subtitle: String, description: String, imageRes: Int) {
+fun PlanCard(
+    title: String,
+    subtitle: String,
+    description: String,
+    imageRes: Int,
+    newsId: String,
+    navController: NavController
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = 8.dp)
+            .clickable {
+                navController.navigate("newsDetail/$newsId")
+            },
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -170,4 +222,3 @@ fun PlanCard(title: String, subtitle: String, description: String, imageRes: Int
         }
     }
 }
-
