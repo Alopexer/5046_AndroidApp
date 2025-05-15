@@ -17,4 +17,8 @@ class UserRepository(private val userDao: UserDao) {
         val user = userDao.getUserByUsername(username)
         return user?.password == password
     }
+
+    suspend fun updateUserProfile(user: UserEntity) {
+        userDao.updateUser(user)
+    }
 }

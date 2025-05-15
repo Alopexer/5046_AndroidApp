@@ -1,4 +1,3 @@
-
 package com.example.myapplication
 
 import androidx.compose.foundation.layout.Arrangement
@@ -36,18 +35,25 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.myapplication.data.AppDatabase
-import com.example.myapplication.data.UserEntity
+import com.example.myapplication.data.UserRepository
 import kotlinx.coroutines.launch
 
 @Composable
-fun LoginScreen(navController: NavController, goLogin: Boolean) {
-    LoginRegisterScreen(navController, goLogin)
+fun LoginScreen(
+    navController: NavController,
+    goLogin: Boolean,
+    onLoginSuccess: (String) -> Unit
+) {
+    LoginRegisterScreen(navController = navController, goLogin = goLogin, onLoginSuccess = onLoginSuccess)
 }
 
 @Composable
-fun LoginRegisterScreen(navController: NavController, goLogin: Boolean) {
+fun LoginRegisterScreen(
+    navController: NavController,
+    goLogin: Boolean,
+    onLoginSuccess: (String) -> Unit
+) {
     var isLogin by remember { mutableStateOf(goLogin) }
-
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var phone by remember { mutableStateOf("") }
@@ -60,6 +66,7 @@ fun LoginRegisterScreen(navController: NavController, goLogin: Boolean) {
     val scope = rememberCoroutineScope()
     val db = remember { AppDatabase.getDatabase(context) }
     val userDao = remember { db.userDao() }
+    val repository = remember { UserRepository(userDao) }
 
     Column(
         modifier = Modifier
@@ -145,38 +152,33 @@ fun LoginRegisterScreen(navController: NavController, goLogin: Boolean) {
         Button(
             onClick = {
                 errorText = ""
-                if (isLogin) {
-                    scope.launch {
-                        val user = userDao.login(email, password)
-                        if (user != null) {
-                            navController.navigate("profile")
+                scope.launch {
+                    if (isLogin) {
+                        val success = repository.login(username, password)
+                        if (success) {
+                            val user = userDao.getUserByUsername(username)
+                            user?.let {
+                                onLoginSuccess(it.email)
+                            } ?: run {
+                                errorText = "User not found"
+                            }
                         } else {
-                            errorText = "Invalid email or password"
+                            errorText = "Invalid username or password"
                         }
-                    }
-                } else {
-                    when {
-                        username.isBlank() -> errorText = "Username is required"
-                        !isValidPhone(phone) -> errorText = "Invalid phone number"
-                        !isValidEmail(email) -> errorText = "Invalid email format"
-                        !isStrongPassword(password) -> errorText = "Password must contain uppercase, lowercase, number, and be at least 8 characters"
-                        password != confirmPassword -> errorText = "Passwords do not match"
-                        else -> {
-                            scope.launch {
-                                val existing = userDao.getUserByEmail(email)
-                                if (existing != null) {
-                                    errorText = "Email already registered"
-                                } else {
-                                    userDao.insertUser(
-                                        UserEntity(
-                                            username = username,
-                                            phone = phone,
-                                            email = email,
-                                            password = password
-                                        )
-                                    )
+                    } else {
+                        when {
+                            username.isBlank() -> errorText = "Username is required"
+                            !isValidPhone(phone) -> errorText = "Invalid phone number"
+                            !isValidEmail(email) -> errorText = "Invalid email format"
+                            !isStrongPassword(password) -> errorText = "Password too weak"
+                            password != confirmPassword -> errorText = "Passwords do not match"
+                            else -> {
+                                val success = repository.register(username, phone, email, password)
+                                if (success) {
                                     isLogin = true
                                     errorText = "Registered successfully. Please log in."
+                                } else {
+                                    errorText = "Username already registered"
                                 }
                             }
                         }
