@@ -19,23 +19,24 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.data.RunningPlan
 import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
+import com.example.myapplication.viewmodel.UserViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-fun RunningPlanCreateScreen(navController: NavController, runningPlanViewModel: RunningPlanViewModel) {
+fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserViewModel, runningPlanViewModel: RunningPlanViewModel) {
     val context = LocalContext.current
     var distance by remember { mutableStateOf("") }
     var duration by remember { mutableStateOf("") }
     var selectedDateTime by remember { mutableStateOf("") }
     val userEmail: String = "test@gmail.com"
     val calendar = remember { Calendar.getInstance() }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -144,18 +145,19 @@ fun RunningPlanCreateScreen(navController: NavController, runningPlanViewModel: 
 
         Button(
             onClick = {
-                if (selectedDateTime.isNotBlank() && distance.isNotBlank() && duration.isNotBlank()) {
+                val email = userViewModel.currentUser?.email
+                if (selectedDateTime.isNotBlank() && distance.isNotBlank() && duration.isNotBlank() && !email.isNullOrBlank()) {
                     val newPlan = RunningPlan(
                         dateTime = selectedDateTime,
                         distance = "$distance km",
                         duration = "$duration min",
-                        email = userEmail,
+                        email = email,
                         isCompleted = false
                     )
                     runningPlanViewModel.insert(newPlan)
-                    navController.popBackStack() // 返回上一页
+                    navController.popBackStack()
                 } else {
-                    Toast.makeText(context, "Please complete all fields", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Please complete all fields: '$distance', '$duration', '$selectedDateTime','$email'", Toast.LENGTH_SHORT).show()
                 }
             },
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -176,12 +178,12 @@ fun RunningPlanCreateScreen(navController: NavController, runningPlanViewModel: 
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CreatePreview() {
-    val navController = rememberNavController()
-    val runningPlanViewModel = RunningPlanViewModel(Application())
-    MyApplicationTheme {
-        RunningPlanCreateScreen(navController, runningPlanViewModel)
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun CreatePreview() {
+//    val navController = rememberNavController()
+//
+//    MyApplicationTheme {
+//        RunningPlanCreateScreen(navController)
+//    }
+//}

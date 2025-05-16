@@ -1,5 +1,6 @@
 package com.example.myapplication
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,12 +29,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
 import com.example.myapplication.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
@@ -43,16 +46,20 @@ import kotlinx.coroutines.launch
 fun LoginScreen(
     navController: NavController,
     goLogin: Boolean,
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (String) -> Unit,
+    userViewModel: UserViewModel,
+    runningPlanViewModel: RunningPlanViewModel
 ) {
-    LoginRegisterScreen(navController = navController, goLogin = goLogin, onLoginSuccess = onLoginSuccess)
+    LoginRegisterScreen(navController = navController, goLogin = goLogin, onLoginSuccess = onLoginSuccess, userViewModel, runningPlanViewModel)
 }
 
 @Composable
 fun LoginRegisterScreen(
     navController: NavController,
     goLogin: Boolean,
-    onLoginSuccess: (String) -> Unit
+    onLoginSuccess: (String) -> Unit,
+    userViewModel: UserViewModel,
+    runningPlanViewModel: RunningPlanViewModel
 ) {
     var isLogin by remember { mutableStateOf(goLogin) }
     var username by remember { mutableStateOf("") }
@@ -62,9 +69,8 @@ fun LoginRegisterScreen(
     var confirmPassword by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
-
     val scope = rememberCoroutineScope()
-    val userViewModel: UserViewModel = viewModel()
+    //val userViewModel: UserViewModel = viewModel()
 
     Column(
         modifier = Modifier
@@ -155,6 +161,7 @@ fun LoginRegisterScreen(
                         userViewModel.login(email, password) { user ->
                             if (user != null) {
                                 onLoginSuccess(user.email)
+
                             } else {
                                 errorText = "Invalid email or password"
                             }
