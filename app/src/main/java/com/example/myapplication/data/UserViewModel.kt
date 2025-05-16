@@ -13,6 +13,8 @@ import kotlinx.coroutines.withContext
 class UserViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repository: UserRepository
+    var currentUser: UserEntity? = null
+        private set
 
     init {
         val userDao = AppDatabase.getDatabase(application).userDao()
@@ -23,6 +25,7 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             val user = repository.login(email, password)
             withContext(Dispatchers.Main) {
+                currentUser = user
                 onResult(user)
             }
         }
@@ -67,5 +70,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
                 onComplete(false)
             }
         }
+    }
+
+    fun logout(onComplete: () -> Unit = {}) {
+        currentUser = null
+        onComplete()
     }
 }
