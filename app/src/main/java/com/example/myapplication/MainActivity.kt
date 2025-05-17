@@ -9,6 +9,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodel.UserViewModel
+import androidx.navigation.compose.rememberNavController
+
 
 //class MainActivity : ComponentActivity() {
 //    override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,23 +72,34 @@ class MainActivity : ComponentActivity() {
                 val runningPlanViewModel: RunningPlanViewModel = viewModel()
                 var isLoggedIn by remember { mutableStateOf(userViewModel.isLoggedIn()) }
                 var userEmail by remember { mutableStateOf(userViewModel.currentUser?.email ?: "") }
-
                 Surface {
-                    if (!isLoggedIn) {
-                        LoginScreen(
-                            navController = null,
-                            goLogin = true,
-                            onLoginSuccess = { email ->
-                                userEmail = email
-                                isLoggedIn = true
-                            },
-                            userViewModel = userViewModel,
-                            runningPlanViewModel = runningPlanViewModel
-                        )
-                    } else {
-                        MainScreen(userEmail = userEmail, userViewModel = userViewModel, runningPlanViewModel = runningPlanViewModel)
-                    }
+                    val userViewModel: UserViewModel = viewModel()
+                    val runningPlanViewModel: RunningPlanViewModel = viewModel()
+                    val navController = rememberNavController()
+
+                    // 🔍 直接加载 Map 页面进行测试
+                    OtherScreen(
+                        userViewModel = userViewModel,
+                        runningPlanViewModel = runningPlanViewModel,
+                        navController = navController
+                    )
                 }
+//                Surface {
+//                    if (!isLoggedIn) {
+//                        LoginScreen(
+//                            navController = null,
+//                            goLogin = true,
+//                            onLoginSuccess = { email ->
+//                                userEmail = email
+//                                isLoggedIn = true
+//                            },
+//                            userViewModel = userViewModel,
+//                            runningPlanViewModel = runningPlanViewModel
+//                        )
+//                    } else {
+//                        MainScreen(userEmail = userEmail, userViewModel = userViewModel, runningPlanViewModel = runningPlanViewModel)
+//                    }
+//                }
             }
         }
     }

@@ -70,6 +70,14 @@ fun MainScreen(
             composable("run/run-plan") {
                 RunningPlanCreateScreen(navController, userViewModel, runningPlanViewModel)
             }
+            composable("run/map") {
+                OtherScreen(
+                    userViewModel = userViewModel,
+                    runningPlanViewModel = runningPlanViewModel,
+                    navController = navController
+                )
+            }
+
         }
     }
 }
