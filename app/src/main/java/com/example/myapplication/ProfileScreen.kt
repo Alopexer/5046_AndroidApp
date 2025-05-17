@@ -202,7 +202,7 @@ fun ProfileScreen(
                             isEditing = false
                             scope.launch {
                                 currentUser?.let {
-                                    userDao.insertUser(
+                                    userDao.updateUser(
                                         it.copy(
                                             username = username,
                                             age = age.toIntOrNull() ?: 0,
