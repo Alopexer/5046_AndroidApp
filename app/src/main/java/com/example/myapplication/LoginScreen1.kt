@@ -1,6 +1,5 @@
 package com.example.myapplication
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -29,12 +28,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
@@ -44,18 +41,23 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
-    navController: NavController,
+    navController: NavController?,
     goLogin: Boolean,
     onLoginSuccess: (String) -> Unit,
     userViewModel: UserViewModel,
     runningPlanViewModel: RunningPlanViewModel
 ) {
-    LoginRegisterScreen(navController = navController, goLogin = goLogin, onLoginSuccess = onLoginSuccess, userViewModel, runningPlanViewModel)
+    LoginRegisterScreen(
+        navController = navController,
+        goLogin = goLogin,
+        onLoginSuccess = onLoginSuccess,
+        userViewModel = userViewModel,
+        runningPlanViewModel = runningPlanViewModel)
 }
 
 @Composable
 fun LoginRegisterScreen(
-    navController: NavController,
+    navController: NavController?,
     goLogin: Boolean,
     onLoginSuccess: (String) -> Unit,
     userViewModel: UserViewModel,

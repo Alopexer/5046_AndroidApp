@@ -1,9 +1,18 @@
 package com.example.myapplication.data
 
 class UserRepository(private val userDao: UserDao) {
+    private var loggedInUser: UserEntity? = null
 
     suspend fun login(email: String, password: String): UserEntity? {
-        return userDao.login(email, password)
+        val user = userDao.login(email, password)
+        loggedInUser = user
+        return user
+    }
+
+    fun isLoggedIn(): Boolean = loggedInUser != null
+
+    fun logout() {
+        loggedInUser = null
     }
 
     suspend fun getUserByUsername(username: String): UserEntity? {

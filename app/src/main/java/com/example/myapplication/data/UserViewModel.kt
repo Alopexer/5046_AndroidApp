@@ -31,6 +31,14 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun isLoggedIn(): Boolean = repository.isLoggedIn()
+
+    fun logout(onComplete: () -> Unit = {}) {
+        repository.logout()
+        currentUser = null
+        onComplete()
+    }
+
     fun getUserByUsername(username: String, onResult: (UserEntity?) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val user = repository.getUserByUsername(username)
@@ -72,8 +80,5 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun logout(onComplete: () -> Unit = {}) {
-        currentUser = null
-        onComplete()
-    }
+
 }
