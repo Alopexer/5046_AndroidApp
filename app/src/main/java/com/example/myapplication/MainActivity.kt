@@ -61,6 +61,38 @@ import com.example.myapplication.viewmodel.UserViewModel
 //        }
 //    }
 //}
+
+//class MainActivity : ComponentActivity() {
+//    override fun onCreate(savedInstanceState: Bundle?) {
+//        super.onCreate(savedInstanceState)
+//        setContent {
+//            MyApplicationTheme {
+//                val userViewModel: UserViewModel = viewModel()
+//                val runningPlanViewModel: RunningPlanViewModel = viewModel()
+//                var isLoggedIn by remember { mutableStateOf(userViewModel.isLoggedIn()) }
+//                var userEmail by remember { mutableStateOf(userViewModel.currentUser?.email ?: "") }
+//
+//                Surface {
+//                    if (!isLoggedIn) {
+//                        LoginScreen(
+//                            navController = null,
+//                            goLogin = true,
+//                            onLoginSuccess = { email ->
+//                                userEmail = email
+//                                isLoggedIn = true
+//                            },
+//                            userViewModel = userViewModel,
+//                            runningPlanViewModel = runningPlanViewModel
+//                        )
+//                    } else {
+//                        MainScreen(userEmail = userEmail, userViewModel = userViewModel, runningPlanViewModel = runningPlanViewModel)
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -68,25 +100,12 @@ class MainActivity : ComponentActivity() {
             MyApplicationTheme {
                 val userViewModel: UserViewModel = viewModel()
                 val runningPlanViewModel: RunningPlanViewModel = viewModel()
-                var isLoggedIn by remember { mutableStateOf(userViewModel.isLoggedIn()) }
-                var userEmail by remember { mutableStateOf(userViewModel.currentUser?.email ?: "") }
 
-                Surface {
-                    if (!isLoggedIn) {
-                        LoginScreen(
-                            navController = null,
-                            goLogin = true,
-                            onLoginSuccess = { email ->
-                                userEmail = email
-                                isLoggedIn = true
-                            },
-                            userViewModel = userViewModel,
-                            runningPlanViewModel = runningPlanViewModel
-                        )
-                    } else {
-                        MainScreen(userEmail = userEmail, userViewModel = userViewModel, runningPlanViewModel = runningPlanViewModel)
-                    }
-                }
+                // ✅ 只渲染 MainScreen，它负责判断是否显示 LoginScreen
+                MainScreen(
+                    userViewModel = userViewModel,
+                    runningPlanViewModel = runningPlanViewModel
+                )
             }
         }
     }

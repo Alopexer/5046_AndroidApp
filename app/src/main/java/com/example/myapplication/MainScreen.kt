@@ -23,13 +23,24 @@ import com.example.myapplication.viewmodel.UserViewModel
 
 @Composable
 fun MainScreen(
-    userEmail: String,
     userViewModel: UserViewModel,
     runningPlanViewModel: RunningPlanViewModel
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val currentUser = userViewModel.currentUser
+    if (currentUser == null) {
+        LoginScreen(
+            navController = navController,
+            goLogin = true,
+            onLoginSuccess = { },
+            userViewModel = userViewModel,
+            runningPlanViewModel = runningPlanViewModel
+        )
+        return
+    }
 
     Scaffold(
         bottomBar = {
@@ -64,7 +75,7 @@ fun MainScreen(
             }
 
             composable(NavItem.Profile.route) {
-                ProfileScreen(navController, email = userEmail, isLogin = true)
+                ProfileScreen(navController, userViewModel, runningPlanViewModel)
             }
 
             composable("run/run-plan") {
