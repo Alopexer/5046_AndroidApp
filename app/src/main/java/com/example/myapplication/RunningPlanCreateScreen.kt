@@ -146,18 +146,25 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
         Button(
             onClick = {
                 val email = userViewModel.currentUser?.email
-                if (selectedDateTime.isNotBlank() && distance.isNotBlank() && duration.isNotBlank() && !email.isNullOrBlank()) {
+                val distanceValue = distance.toDoubleOrNull()
+                val durationValue = duration.toIntOrNull()
+
+                if (selectedDateTime.isNotBlank() && distanceValue != null && durationValue != null && !email.isNullOrBlank()) {
                     val newPlan = RunningPlan(
                         dateTime = selectedDateTime,
-                        distance = "$distance km",
-                        duration = "$duration min",
+                        distance = distanceValue,
+                        duration = durationValue,
                         email = email,
                         isCompleted = false
                     )
                     runningPlanViewModel.insert(newPlan)
                     navController.popBackStack()
                 } else {
-                    Toast.makeText(context, "Please complete all fields: '$distance', '$duration', '$selectedDateTime','$email'", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        context,
+                        "Please enter valid values: '$distance', '$duration', '$selectedDateTime', '$email'",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             },
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -165,6 +172,7 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
             Icon(Icons.Default.Save, contentDescription = "Back")
             Text("Save")
         }
+
 
         Button(
             onClick = {

@@ -71,7 +71,7 @@ fun MainScreen(
             }
 
             composable(NavItem.Run.route) {
-                RunningScreen(navController)
+                RunningScreen(navController, userViewModel, runningPlanViewModel)
             }
 
             composable(NavItem.Profile.route) {
