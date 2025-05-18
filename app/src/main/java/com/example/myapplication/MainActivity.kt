@@ -118,8 +118,29 @@ import com.google.android.gms.common.api.ApiException
 
 class MainActivity : ComponentActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
-    private lateinit var userViewModel: UserViewModel
-    private lateinit var runningPlanViewModel: RunningPlanViewModel
+
+    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val account = task.getResult(ApiException::class.java)
+            account?.let { acc ->
+                val email = acc.email ?: return@let
+                val username = acc.displayName ?: email
+                val newUser = UserEntity(
+                    username = username,
+                    email = email,
+                    phone = "N/A",
+                    password = "GOOGLE_AUTH"
+                )
+                // ⚠️ 此处不能用外部 userViewModel，传给下面的 lambda
+                signInCallback?.invoke(newUser)
+            }
+        } catch (e: ApiException) {
+            Log.e("GOOGLE_LOGIN", "Login failed: ${e.statusCode}")
+        }
+    }
+
+    private var signInCallback: ((UserEntity) -> Unit)? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -131,12 +152,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyApplicationTheme {
-                userViewModel = viewModel()
-                runningPlanViewModel = viewModel()
+                val userViewModel: UserViewModel = viewModel()
+                val runningPlanViewModel: RunningPlanViewModel = viewModel()
 
-                val user by userViewModel::currentUser
+                // ✅ 观察 currentUser 是否为 null
+                val currentUser = userViewModel.currentUser
+                if (currentUser == null) {
+                    // ⚠️ 将回调设定给外部变量
+                    signInCallback = { userEntity ->
+                        userViewModel.loginOrRegisterByGoogle(userEntity) { success ->
+                            Log.d("GOOGLE_LOGIN", "User login complete: $success")
+                            // Compose 会自动刷新 UI
+                        }
+                    }
 
-                if (user == null) {
                     LoginScreen(
                         navController = null,
                         goLogin = true,
@@ -157,29 +186,6 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
-        }
-    }
-
-    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val account = task.getResult(ApiException::class.java)
-            account?.let {
-                val email = it.email ?: return@let
-                val username = it.displayName ?: email
-                val newUser = UserEntity(
-                    username = username,
-                    email = email,
-                    phone = "N/A",
-                    password = "GOOGLE_AUTH"
-                )
-                userViewModel.loginOrRegisterByGoogle(newUser) { success ->
-                    Log.d("GOOGLE_LOGIN", "Google login success = $success")
-                    // 页面会自动更新
-                }
-            }
-        } catch (e: ApiException) {
-            Log.e("GOOGLE_LOGIN", "Login failed: ${e.statusCode}")
         }
     }
 }
