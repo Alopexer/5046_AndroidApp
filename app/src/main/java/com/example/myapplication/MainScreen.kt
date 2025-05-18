@@ -8,11 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -24,7 +20,8 @@ import com.example.myapplication.viewmodel.UserViewModel
 @Composable
 fun MainScreen(
     userViewModel: UserViewModel,
-    runningPlanViewModel: RunningPlanViewModel
+    runningPlanViewModel: RunningPlanViewModel,
+    onGoogleLoginClick: () -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -37,8 +34,11 @@ fun MainScreen(
             goLogin = true,
             onLoginSuccess = { },
             userViewModel = userViewModel,
-            runningPlanViewModel = runningPlanViewModel
+            runningPlanViewModel = runningPlanViewModel,
+            onGoogleLoginClick = onGoogleLoginClick
+
         )
+
         return
     }
 

@@ -83,5 +83,19 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun loginOrRegisterByGoogle(user: UserEntity, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val existing = repository.getUserByEmail(user.email)
+            val finalUser = existing ?: run {
+                repository.insertUser(user)
+                user
+            }
+            currentUser = finalUser
+            withContext(Dispatchers.Main) {
+                onResult(true)
+            }
+        }
+    }
+
 
 }
