@@ -10,10 +10,12 @@ import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
 import com.example.myapplication.ui.theme.MyApplicationTheme
 import com.example.myapplication.viewmodel.UserViewModel
+import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
+
 
 //class MainActivity : ComponentActivity() {
 //    override fun onCreate(savedInstanceState: Bundle?) {

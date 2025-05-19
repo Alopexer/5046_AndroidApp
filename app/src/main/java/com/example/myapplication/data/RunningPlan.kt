@@ -16,5 +16,7 @@ data class RunningPlan(
     val isCompleted: Boolean = false,
 
     val calories: Int = 0,
-    val pace: String = "No Data"
+    val pace: String = "No Data",
+
+    val route: String = ""
 )
