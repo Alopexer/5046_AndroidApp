@@ -1,169 +1,93 @@
 package com.example.myapplication
 
-import android.app.Application
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.DirectionsRun
-import androidx.compose.material3.Divider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.runtime.collectAsState
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.myapplication.data.RunningPlan
 import com.example.myapplication.data.RunningPlanViewModel
+import com.example.myapplication.data.RunningSummary
 import com.example.myapplication.viewmodel.UserViewModel
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @Composable
-fun RunningScreen(navController: NavController,
-                  userViewModel: UserViewModel,
-                  runningPlanViewModel: RunningPlanViewModel) {
-    var duration by remember { mutableStateOf("") }
-    var pace by remember { mutableStateOf("6'00\"/km") }
-    var distance by remember { mutableStateOf("") }
-
-    val durationOptions = listOf("10 分钟", "20 分钟", "30 分钟", "40 分钟", "60 分钟")
-    val paceOptions = listOf("5'30\"/km", "6'00\"/km", "6'30\"/km")
-
+fun RunningScreen(
+    navController: NavController,
+    userViewModel: UserViewModel,
+    runningPlanViewModel: RunningPlanViewModel
+) {
     val email = userViewModel.currentUser?.email
+    val context = LocalContext.current
+
     val runningPlans = email?.let {
         runningPlanViewModel.getIncompletePlansByEmail(it).collectAsState(initial = emptyList())
+    }
+
+    val summary = email?.let {
+        runningPlanViewModel.getRunningSummary(it).collectAsState(
+            initial = RunningSummary(0.0, 0, 0)
+        )
     }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        //verticalArrangement = Arrangement.Center,
-        //horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        Text("Set your running goal:", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(16.dp))
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Distance \n (km)",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.width(110.dp) // 固定宽度避免挤压
-            )
-
-            OutlinedTextField(
-                value = distance,
-                onValueChange = { distance = it },
-                placeholder = { Text("Enter Distance") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f)
-            )
+        summary?.value?.let { s ->
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFE3F2FD)),
+                elevation = CardDefaults.cardElevation(4.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("\uD83C\uDFC1 Completed Summary", style = MaterialTheme.typography.titleMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("\uD83C\uDFC3 Distance: ${"%.2f".format(s.totalDistance)} km")
+                    Text("⏱️ Duration: ${s.totalDuration} min")
+                    Text("\uD83D\uDD25 Calories: ${s.totalCalories} kcal")
+                }
+            }
         }
-
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Duration \n (min)",
-                style = MaterialTheme.typography.bodyLarge.copy(
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.width(110.dp) // 固定宽度避免挤压
-            )
-
-            OutlinedTextField(
-                value = duration,
-                onValueChange = { duration = it },
-                placeholder = { Text("Enter Duration") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                modifier = Modifier.weight(1f)
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         Button(
             onClick = {
-                val email = userViewModel.currentUser?.email
-
                 if (!email.isNullOrBlank()) {
-                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-                    val now = formatter.format(Date())
-
-                    val newPlan = RunningPlan(
-                        dateTime = now,
-                        email = email
-                    )
-
-                    runningPlanViewModel.insert(newPlan)
-                    runningPlanViewModel.setCurrentRunningPlan(newPlan)
-
-                    // 进入地图界面
-                    //navController.navigate("run/map")
+                    val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+                    val newPlan = RunningPlan(dateTime = now, email = email)
+                    runningPlanViewModel.insertAndSetCurrent(newPlan)
+                    Log.d("RunScreen", "newplan: $newPlan")
+                    navController.navigate("run/map")
                 }
             },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .fillMaxWidth(0.3f),
+            shape = RoundedCornerShape(12.dp)
         ) {
-            Icon(Icons.Default.DirectionsRun, contentDescription = "Run")
-            Text("Run!")
+            Icon(Icons.Default.DirectionsRun, contentDescription = null, Modifier.padding(end = 8.dp))
+            Text("Run!", fontSize = 16.sp)
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
-        DashedDivider()
         Spacer(modifier = Modifier.height(16.dp))
         Text("Your running plans:", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(8.dp))
@@ -172,44 +96,14 @@ fun RunningScreen(navController: NavController,
             runningPlans?.value?.let { plans ->
                 items(plans.size) { index ->
                     val plan = plans[index]
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        RunningPlanBox(
-                            date = plan.dateTime,
-                            distance = "${plan.distance} km",
-                            duration = "${plan.duration} min",
-                            backgroundColor = Color(0xFFE0F7FA),
-                            modifier = Modifier.weight(1f)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        Column {
-                            // ✅ Start 按钮
-                            IconButton(onClick = {
-                                runningPlanViewModel.setCurrentRunningPlan(plan)
-                                // navController.navigate("run/map")
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Default.DirectionsRun,
-                                    contentDescription = "Start"
-                                )
-                            }
-
-                            // ✅ Delete 按钮
-                            IconButton(onClick = {
-                                runningPlanViewModel.delete(plan)
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Delete"
-                                )
-                            }
-                        }
-
-                    }
+                    RunningPlanItemCard(
+                        plan = plan,
+                        onStart = {
+                            runningPlanViewModel.setCurrentRunningPlan(plan)
+                            navController.navigate("run/map")
+                        },
+                        onDelete = { runningPlanViewModel.delete(plan) }
+                    )
                 }
             }
         }
@@ -217,12 +111,14 @@ fun RunningScreen(navController: NavController,
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { navController.navigate("run/run-plan") },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            shape = RoundedCornerShape(12.dp)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Add")
             Text("New")
         }
 
+        Spacer(modifier = Modifier.height(12.dp))
         AddTestPlanButton(
             userViewModel = userViewModel,
             runningPlanViewModel = runningPlanViewModel,
@@ -231,73 +127,35 @@ fun RunningScreen(navController: NavController,
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownSelector(
-    options: List<String>,
-    selectedOption: String,
-    onOptionSelected: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
+fun RunningPlanItemCard(plan: RunningPlan, onStart: () -> Unit, onDelete: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFF0F4C3))
     ) {
-        TextField(
-            value = selectedOption,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Choose") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded)
-            },
-            modifier = Modifier.menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
+        Row(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            options.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option) },
-                    onClick = {
-                        onOptionSelected(option)
-                        expanded = false
-                    }
-                )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(text = plan.dateTime, fontSize = 14.sp, color = Color.Gray)
+                Text(text = "\uD83C\uDFC6 Distance: ${plan.distance} km", fontSize = 16.sp)
+                Text(text = "⏱ Duration: ${plan.duration} min", fontSize = 16.sp)
+            }
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                IconButton(onClick = onStart) {
+                    Icon(Icons.Default.DirectionsRun, contentDescription = "Start")
+                }
+                IconButton(onClick = onDelete) {
+                    Icon(Icons.Default.Delete, contentDescription = "Delete")
+                }
             }
         }
     }
 }
-
-@Composable
-fun RunningPlanBox(date: String, distance: String, duration: String, backgroundColor: Color, modifier: Modifier = Modifier) {
-    Box(
-        modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
-            .background(backgroundColor)
-            .padding(16.dp)
-            .fillMaxWidth()
-    ) {
-        Column(horizontalAlignment = Alignment.Start) {
-            Text(text = date, fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = "Distance: $distance", fontSize = 16.sp, color = Color.Black)
-            Text(text = "Duration: $duration", fontSize = 16.sp, color = Color.Black)
-        }
-    }
-}
-
-//@Preview(showBackground = true)
-//@Composable
-//fun RunPreview() {
-//    MyApplicationTheme {
-//        val navController = rememberNavController()
-//        RunningScreen(navController)
-//    }
-//}
-
 
 @Composable
 fun AddTestPlanButton(

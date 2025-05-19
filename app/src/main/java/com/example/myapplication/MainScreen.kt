@@ -90,7 +90,7 @@ fun MainScreen(
                 RunningPlanCreateScreen(navController, userViewModel, runningPlanViewModel)
             }
             composable("run/map") {
-                OtherScreen(
+                MapScreen(
                     userViewModel = userViewModel,
                     runningPlanViewModel = runningPlanViewModel,
                     navController = navController

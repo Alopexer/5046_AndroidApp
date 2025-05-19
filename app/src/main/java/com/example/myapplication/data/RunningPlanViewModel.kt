@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.myapplication.RunningPlanRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class RunningPlanViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,7 +18,7 @@ class RunningPlanViewModel(application: Application) : AndroidViewModel(applicat
     private val _currentRunningPlan = mutableStateOf<RunningPlan?>(null)
     val currentRunningPlan: State<RunningPlan?> = _currentRunningPlan
 
-    fun setCurrentRunningPlan(plan: RunningPlan) {
+    fun setCurrentRunningPlan(plan: RunningPlan?) {
         _currentRunningPlan.value = plan
     }
 
@@ -44,6 +45,20 @@ class RunningPlanViewModel(application: Application) : AndroidViewModel(applicat
         onResult(latestPlan)
     }
 
+    fun insertAndSetCurrent(plan: RunningPlan) = viewModelScope.launch(Dispatchers.IO) {
+        val generatedId = repository.insertAndReturnId(plan)
+        val completePlan = plan.copy(id = generatedId.toInt()) // Room 返回的是 Long
+        _currentRunningPlan.value = completePlan
+    }
+
+    fun getRunningSummary(email: String): Flow<RunningSummary> {
+        return repository.getCompletedPlansByEmail(email).map { plans ->
+            val totalDistance = plans.sumOf { it.distance }
+            val totalDuration = plans.sumOf { it.duration }
+            val totalCalories = plans.sumOf { it.calories }
+            RunningSummary(totalDistance, totalDuration, totalCalories)
+        }
+    }
 
     fun insert(plan: RunningPlan) = viewModelScope.launch(Dispatchers.IO) {
         repository.insert(plan)

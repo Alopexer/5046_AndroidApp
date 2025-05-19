@@ -23,6 +23,10 @@ class RunningPlanRepository(private val dao: RunningPlanDAO) {
     suspend fun getLatestPlanByEmail(email: String): RunningPlan? =
         dao.getLatestPlanByEmail(email)
 
+    suspend fun insertAndReturnId(plan: RunningPlan): Long {
+        return dao.insert(plan)
+    }
+
     // ✅ 插入计划
     suspend fun insert(plan: RunningPlan) = dao.insert(plan)
 

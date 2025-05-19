@@ -1,5 +1,7 @@
 package com.example.myapplication
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -201,17 +203,26 @@ fun ProfileScreen(
                 Button(
                     onClick = {
                         isEditing = false
-                        scope.launch {
-                            currentUser?.let {
-                                userDao.updateUser(
-                                    it.copy(
-                                        username = username,
-                                        age = age.toIntOrNull() ?: 0,
-                                        gender = gender,
-                                        height = height.toIntOrNull() ?: 0,
-                                        weight = weight.toIntOrNull() ?: 0
-                                    )
-                                )
+                        val current = userViewModel.currentUser
+
+                        Log.d("Profile", "Before Update: $current")
+
+                        current?.let {
+                            val updatedUser = it.copy(
+                                username = username,
+                                age = age.toIntOrNull() ?: 0,
+                                gender = gender,
+                                height = height.toIntOrNull() ?: 0,
+                                weight = weight.toIntOrNull() ?: 0
+                            )
+
+                            userViewModel.updateUser(updatedUser) { success ->
+                                if (success) {
+                                    Log.d("Profile", "Update Success: $updatedUser")
+                                    Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
+                                }
                             }
                         }
                     },

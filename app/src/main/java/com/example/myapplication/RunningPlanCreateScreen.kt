@@ -185,13 +185,3 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
         }
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun CreatePreview() {
-//    val navController = rememberNavController()
-//
-//    MyApplicationTheme {
-//        RunningPlanCreateScreen(navController)
-//    }
-//}

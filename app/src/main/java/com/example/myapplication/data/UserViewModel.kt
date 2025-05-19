@@ -76,7 +76,10 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 repository.updateUser(user)
-                onComplete(true)
+                withContext(Dispatchers.Main) {
+                    currentUser = user
+                    onComplete(true)
+                }
             } catch (e: Exception) {
                 onComplete(false)
             }
