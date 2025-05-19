@@ -8,11 +8,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -23,13 +19,28 @@ import com.example.myapplication.viewmodel.UserViewModel
 
 @Composable
 fun MainScreen(
-    userEmail: String,
     userViewModel: UserViewModel,
-    runningPlanViewModel: RunningPlanViewModel
+    runningPlanViewModel: RunningPlanViewModel,
+    onGoogleLoginClick: () -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    val currentUser = userViewModel.currentUser
+    if (currentUser == null) {
+        LoginScreen(
+            navController = navController,
+            goLogin = true,
+            onLoginSuccess = { },
+            userViewModel = userViewModel,
+            runningPlanViewModel = runningPlanViewModel,
+            onGoogleLoginClick = onGoogleLoginClick
+
+        )
+
+        return
+    }
 
     Scaffold(
         bottomBar = {
@@ -60,11 +71,11 @@ fun MainScreen(
             }
 
             composable(NavItem.Run.route) {
-                RunningScreen(navController)
+                RunningScreen(navController, userViewModel, runningPlanViewModel)
             }
 
             composable(NavItem.Profile.route) {
-                ProfileScreen(navController, email = userEmail, isLogin = true)
+                ProfileScreen(navController, userViewModel, runningPlanViewModel)
             }
 
             composable("run/run-plan") {

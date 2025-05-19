@@ -9,12 +9,24 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RunningPlanDAO {
-    @Query("SELECT * FROM running_plan_table WHERE email = :email ORDER BY id DESC")
-    fun getPlansByEmail(email: String): Flow<List<RunningPlan>>
+    @Query("SELECT * FROM running_plan_table WHERE email = :email AND isCompleted = 0 ORDER BY id DESC")
+    fun getIncompletePlansByEmail(email: String): Flow<List<RunningPlan>>
 
-    @Query("SELECT * FROM running_plan_table WHERE email = :email ORDER BY dateTime DESC LIMIT 1")
+    @Query("SELECT * FROM running_plan_table WHERE email = :email AND isCompleted = 1 ORDER BY id DESC")
+    fun getCompletedPlansByEmail(email: String): Flow<List<RunningPlan>>
+
+    @Query("SELECT * FROM running_plan_table WHERE email = :email AND isCompleted = 1 ORDER BY dateTime DESC LIMIT 1")
     suspend fun getLatestPlanByEmail(email: String): RunningPlan?
 
+    @Query("""
+    SELECT 
+        SUM(distance) AS totalDistance, 
+        SUM(duration) AS totalDuration, 
+        SUM(calories) AS totalCalories
+    FROM running_plan_table
+    WHERE email = :email AND isCompleted = 1
+""")
+    suspend fun getCompletedSummaryByEmail(email: String): RunningSummary?
 
     @Insert
     suspend fun insert(plan: RunningPlan)
