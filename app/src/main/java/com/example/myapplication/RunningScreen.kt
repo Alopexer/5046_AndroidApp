@@ -1,6 +1,7 @@
 package com.example.myapplication
 
 import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,9 +49,19 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.platform.LocalContext
+import com.example.myapplication.data.RunningPlan
+import com.example.myapplication.data.RunningPlanViewModel
+import com.example.myapplication.viewmodel.UserViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
-fun RunningScreen(navController: NavController) {
+fun RunningScreen(navController: NavController,
+                  userViewModel: UserViewModel,
+                  runningPlanViewModel: RunningPlanViewModel) {
     var duration by remember { mutableStateOf("") }
     var pace by remember { mutableStateOf("6'00\"/km") }
     var distance by remember { mutableStateOf("") }
@@ -58,11 +69,10 @@ fun RunningScreen(navController: NavController) {
     val durationOptions = listOf("10 分钟", "20 分钟", "30 分钟", "40 分钟", "60 分钟")
     val paceOptions = listOf("5'30\"/km", "6'00\"/km", "6'30\"/km")
 
-    var runningPlans = listOf(
-        RunPlan("2025-04-10 18:00", "5 km", "30 min"),
-        RunPlan("2025-04-12 07:30", "10 km", "60 min"),
-        RunPlan("2025-04-15 19:00", "3 km", "20 min")
-    )
+    val email = userViewModel.currentUser?.email
+    val runningPlans = email?.let {
+        runningPlanViewModel.getIncompletePlansByEmail(it).collectAsState(initial = emptyList())
+    }
 
     Column(
         modifier = Modifier
@@ -125,49 +135,85 @@ fun RunningScreen(navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(8.dp))
+
         Button(
-            onClick = { navController.navigate("run/map") },
+            onClick = {
+                val email = userViewModel.currentUser?.email
+
+                if (!email.isNullOrBlank()) {
+                    val formatter = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+                    val now = formatter.format(Date())
+
+                    val newPlan = RunningPlan(
+                        dateTime = now,
+                        email = email
+                    )
+
+                    runningPlanViewModel.insert(newPlan)
+                    runningPlanViewModel.setCurrentRunningPlan(newPlan)
+
+                    // 进入地图界面
+                    //navController.navigate("run/map")
+                }
+            },
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
             Icon(Icons.Default.DirectionsRun, contentDescription = "Run")
             Text("Run!")
         }
+
         Spacer(modifier = Modifier.height(8.dp))
         DashedDivider()
         Spacer(modifier = Modifier.height(16.dp))
         Text("Your running plans:", style = MaterialTheme.typography.titleLarge)
         Spacer(modifier = Modifier.height(8.dp))
+
         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(runningPlans.size) { index ->
-                val plan = runningPlans[index]
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    RunningPlanBox(
-                        date = plan.dateTime,
-                        distance = plan.distance,
-                        duration = plan.duration,
-                        backgroundColor = Color(0xFFE0F7FA),
-                        modifier = Modifier.weight(1f)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    IconButton(onClick = {
-                        runningPlans = runningPlans.toMutableList().apply {
-                            removeAt(index)
-                        }
-                    }) {
-                        Icon(
-                            imageVector = Icons.Filled.Delete,
-                            contentDescription = "Delete"
+            runningPlans?.value?.let { plans ->
+                items(plans.size) { index ->
+                    val plan = plans[index]
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        RunningPlanBox(
+                            date = plan.dateTime,
+                            distance = "${plan.distance} km",
+                            duration = "${plan.duration} min",
+                            backgroundColor = Color(0xFFE0F7FA),
+                            modifier = Modifier.weight(1f)
                         )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Column {
+                            // ✅ Start 按钮
+                            IconButton(onClick = {
+                                runningPlanViewModel.setCurrentRunningPlan(plan)
+                                // navController.navigate("run/map")
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.DirectionsRun,
+                                    contentDescription = "Start"
+                                )
+                            }
+
+                            // ✅ Delete 按钮
+                            IconButton(onClick = {
+                                runningPlanViewModel.delete(plan)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "Delete"
+                                )
+                            }
+                        }
+
                     }
                 }
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
         Button(
             onClick = { navController.navigate("run/run-plan") },
@@ -176,6 +222,12 @@ fun RunningScreen(navController: NavController) {
             Icon(Icons.Default.Add, contentDescription = "Add")
             Text("New")
         }
+
+        AddTestPlanButton(
+            userViewModel = userViewModel,
+            runningPlanViewModel = runningPlanViewModel,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
+        )
     }
 }
 
@@ -237,11 +289,61 @@ fun RunningPlanBox(date: String, distance: String, duration: String, backgroundC
     }
 }
 
-@Preview(showBackground = true)
+//@Preview(showBackground = true)
+//@Composable
+//fun RunPreview() {
+//    MyApplicationTheme {
+//        val navController = rememberNavController()
+//        RunningScreen(navController)
+//    }
+//}
+
+
 @Composable
-fun RunPreview() {
-    MyApplicationTheme {
-        val navController = rememberNavController()
-        RunningScreen(navController)
+fun AddTestPlanButton(
+    userViewModel: UserViewModel,
+    runningPlanViewModel: RunningPlanViewModel,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+    Button(
+        onClick = {
+            val email = userViewModel.currentUser?.email
+
+            if (!email.isNullOrBlank()) {
+                val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
+
+                val distance = 15.0
+                val duration = 100
+                val calories = 400
+
+                // pace = duration / distance（单位：min/km）
+                val paceMinutes = duration.toDouble() / distance
+                val paceMin = paceMinutes.toInt()
+                val paceSec = ((paceMinutes - paceMin) * 60).toInt()
+                val paceFormatted = "${paceMin}'${String.format("%02d", paceSec)}\"/km"
+
+                val testPlan = RunningPlan(
+                    dateTime = now,
+                    distance = distance,
+                    duration = duration,
+                    email = email,
+                    isCompleted = true,
+                    calories = calories,
+                    pace = paceFormatted
+                )
+
+                runningPlanViewModel.insert(testPlan)
+
+                Toast.makeText(context, "测试计划已添加", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "请先登录以生成测试计划", Toast.LENGTH_SHORT).show()
+            }
+        },
+        modifier = modifier
+    ) {
+        Icon(Icons.Default.Add, contentDescription = "Add Test Plan")
+        Text("Add Test Plan")
     }
 }

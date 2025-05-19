@@ -20,7 +20,8 @@ import com.example.myapplication.viewmodel.UserViewModel
 @Composable
 fun MainScreen(
     userViewModel: UserViewModel,
-    runningPlanViewModel: RunningPlanViewModel
+    runningPlanViewModel: RunningPlanViewModel,
+    onGoogleLoginClick: () -> Unit
 ) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -33,8 +34,11 @@ fun MainScreen(
             goLogin = true,
             onLoginSuccess = { },
             userViewModel = userViewModel,
-            runningPlanViewModel = runningPlanViewModel
+            runningPlanViewModel = runningPlanViewModel,
+            onGoogleLoginClick = onGoogleLoginClick
+
         )
+
         return
     }
 
@@ -68,7 +72,7 @@ fun MainScreen(
             }
 
             composable(NavItem.Run.route) {
-                RunningScreen(navController)
+                RunningScreen(navController, userViewModel, runningPlanViewModel)
             }
 
             composable(NavItem.Profile.route) {
@@ -78,6 +82,14 @@ fun MainScreen(
             composable("run/run-plan") {
                 RunningPlanCreateScreen(navController, userViewModel, runningPlanViewModel)
             }
+            composable("run/map") {
+                OtherScreen(
+                    userViewModel = userViewModel,
+                    runningPlanViewModel = runningPlanViewModel,
+                    navController = navController
+                )
+            }
+
         }
     }
 }

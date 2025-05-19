@@ -9,12 +9,14 @@ data class RunningPlan(
     val id: Int = 0,
 
     val dateTime: String,
-    val distance: String,
-    val duration: String,
+    val distance: Double = 0.0,
+    val duration: Int = 0,
     val email: String,
 
     val isCompleted: Boolean = false,
 
     val calories: Int = 0,
-    val pace: String = "No Data"
+    val pace: String = "No Data",
+
+    val route: String = ""
 )

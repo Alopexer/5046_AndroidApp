@@ -45,14 +45,16 @@ fun LoginScreen(
     goLogin: Boolean,
     onLoginSuccess: (String) -> Unit,
     userViewModel: UserViewModel,
-    runningPlanViewModel: RunningPlanViewModel
+    runningPlanViewModel: RunningPlanViewModel,
+    onGoogleLoginClick: () -> Unit
 ) {
     LoginRegisterScreen(
         navController = navController,
         goLogin = goLogin,
         onLoginSuccess = onLoginSuccess,
         userViewModel = userViewModel,
-        runningPlanViewModel = runningPlanViewModel)
+        runningPlanViewModel = runningPlanViewModel,
+        onGoogleLoginClick = onGoogleLoginClick)
 }
 
 @Composable
@@ -61,7 +63,8 @@ fun LoginRegisterScreen(
     goLogin: Boolean,
     onLoginSuccess: (String) -> Unit,
     userViewModel: UserViewModel,
-    runningPlanViewModel: RunningPlanViewModel
+    runningPlanViewModel: RunningPlanViewModel,
+    onGoogleLoginClick: () -> Unit
 ) {
     var isLogin by remember { mutableStateOf(goLogin) }
     var username by remember { mutableStateOf("") }
@@ -201,6 +204,19 @@ fun LoginRegisterScreen(
         }
 
         Spacer(modifier = Modifier.height(16.dp))
+
+        Button(
+            onClick = { onGoogleLoginClick() },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Sign in with Google")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // 登录/注册模式切换按钮
+        }
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(text = if (isLogin) "Don't have an account?" else "Already have an account?")
