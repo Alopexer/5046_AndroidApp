@@ -8,11 +8,26 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -24,14 +39,19 @@ import androidx.navigation.NavController
 import com.example.myapplication.data.RunningPlan
 import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.viewmodel.UserViewModel
-import com.google.android.gms.location.*
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.MapView
-import com.google.android.gms.maps.model.*
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Polyline
+import com.google.android.gms.maps.model.PolylineOptions
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.util.*
+import java.util.Locale
 
 @Composable
 fun OtherScreen(
@@ -76,12 +96,13 @@ fun OtherScreen(
             runningPlanViewModel.getLatestPlanByEmail(email) { latest ->
                 if (latest != null && !latest.isCompleted) {
                     selectedPlan = latest
-                    targetDistance = latest.distance.removeSuffix(" km").toDoubleOrNull() ?: 0.0
-                    targetTime = latest.duration.removeSuffix(" min").toIntOrNull()?.times(60) ?: 0
+                    targetDistance = latest.distance         // 直接赋值
+                    targetTime = latest.duration * 60        // 分钟转秒
                 }
             }
         }
     }
+
 
     var isRunning by remember { mutableStateOf(false) }
     var isPaused by remember { mutableStateOf(false) }
@@ -199,8 +220,8 @@ fun OtherScreen(
                             isCompleted = true,
                             pace = paceStr,
                             calories = calories,
-                            duration = "${elapsedSeconds / 60} min",
-                            distance = "${"%.2f".format(distance)} km",
+                            duration = elapsedSeconds / 60,    // 直接赋Int
+                            distance = distance,               // 直接赋Double
                             route = routeString
                         )
                         runningPlanViewModel.update(updated)

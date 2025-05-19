@@ -92,7 +92,7 @@ fun NewsContent(title: String, tag: String, imageRes: Int, content: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
+            .padding(bottom = 10.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {

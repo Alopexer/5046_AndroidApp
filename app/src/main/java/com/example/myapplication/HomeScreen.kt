@@ -28,6 +28,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,13 +40,28 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.myapplication.data.RunningPlan
+import com.example.myapplication.data.RunningPlanViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavController) {
+fun HomeScreen(
+    navController: NavController,
+    runningPlanViewModel: RunningPlanViewModel,
+    userEmail: String,
+    userName: String
+) {
+    val latestPlan = remember { mutableStateOf<RunningPlan?>(null) }
+
+    LaunchedEffect(userEmail) {
+        runningPlanViewModel.getLatestPlanByEmail(userEmail) { plan ->
+            latestPlan.value = plan
+        }
+    }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Welcome, Runner") })
+            TopAppBar(title = { Text("Welcome, $userName") })
         }
     ) { innerPadding ->
         Column(
@@ -54,7 +72,7 @@ fun HomeScreen(navController: NavController) {
                 .padding(horizontal = 16.dp)
                 .navigationBarsPadding()
         ) {
-            HealthSummarySection()
+            HealthSummarySection(latestPlan.value)
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -73,41 +91,47 @@ fun HomeScreen(navController: NavController) {
 
 
 
+
 @Composable
-fun HealthSummarySection() {
+fun HealthSummarySection(latestPlan: RunningPlan?) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
+            .padding(bottom = 10.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F9F9)),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         shape = RoundedCornerShape(16.dp)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(10.dp)) {
             Text(
                 text = "Last Running Record",
-                fontSize = 18.sp,
+                fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.Black,
-                modifier = Modifier.padding(bottom = 16.dp)
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                HealthBox("Distance", "3.2 km", Color(0xFFE3F2FD), Modifier.weight(1f))
-                Spacer(modifier = Modifier.width(12.dp))
-                HealthBox("Calories", "230 kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
-            }
+            if (latestPlan != null) {
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    HealthBox("Distance", "${latestPlan.distance} km", Color(0xFFE3F2FD), Modifier.weight(1f))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    HealthBox("Calories", "${latestPlan.calories} kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
+                }
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-            Row(modifier = Modifier.fillMaxWidth()) {
-                HealthBox("Duration", "25 min", Color(0xFFE8F5E9), Modifier.weight(1f))
-                Spacer(modifier = Modifier.width(12.dp))
-                HealthBox("Pace", "7'45\" min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+                Row(modifier = Modifier.fillMaxWidth()) {
+                    HealthBox("Duration", "${latestPlan.duration} min", Color(0xFFE8F5E9), Modifier.weight(1f))
+                    Spacer(modifier = Modifier.width(8.dp))
+                    HealthBox("Pace", "${latestPlan.pace} min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+                }
+            } else {
+                Text("No running record found.", color = Color.Gray)
             }
         }
     }
 }
+
 
 
 
@@ -117,12 +141,12 @@ fun HealthBox(title: String, value: String, backgroundColor: Color, modifier: Mo
         modifier = modifier
             .clip(RoundedCornerShape(12.dp))
             .background(backgroundColor)
-            .padding(16.dp)
+            .padding(8.dp)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(text = title, fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+            Text(text = title, fontSize = 12.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = value, fontSize = 15.sp, fontWeight = FontWeight.Bold, color = Color.Black)
         }
     }
 }
