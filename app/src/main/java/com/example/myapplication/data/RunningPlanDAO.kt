@@ -29,7 +29,7 @@ interface RunningPlanDAO {
     suspend fun getCompletedSummaryByEmail(email: String): RunningSummary?
 
     @Insert
-    suspend fun insert(plan: RunningPlan)
+    suspend fun insert(plan: RunningPlan): Long
 
     @Delete
     suspend fun delete(plan: RunningPlan)
