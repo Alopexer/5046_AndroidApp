@@ -14,6 +14,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myapplication.data.RunningPlanViewModel
+import com.example.myapplication.screens.NewsDetailScreen
 import com.example.myapplication.viewmodel.UserViewModel
 
 
@@ -52,7 +53,9 @@ fun MainScreen(
                         selected = currentRoute?.startsWith(item.route) == true,
                         onClick = {
                             navController.navigate(item.route) {
-                                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                                popUpTo(navController.graph.startDestinationId) {
+                                    inclusive = false
+                                }
                                 launchSingleTop = true
                             }
                         }
@@ -67,17 +70,22 @@ fun MainScreen(
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(NavItem.Home.route) {
-                HomeScreen()
+                HomeScreen(
+                    navController = navController,
+                    runningPlanViewModel = runningPlanViewModel,
+                    userEmail = userViewModel.currentUser?.email ?: "",
+                    userName = userViewModel.currentUser?.username ?: ""
+                )
+
             }
+
 
             composable(NavItem.Run.route) {
                 RunningScreen(navController, userViewModel, runningPlanViewModel)
             }
-
             composable(NavItem.Profile.route) {
                 ProfileScreen(navController, userViewModel, runningPlanViewModel)
             }
-
             composable("run/run-plan") {
                 RunningPlanCreateScreen(navController, userViewModel, runningPlanViewModel)
             }
@@ -88,6 +96,15 @@ fun MainScreen(
                     navController = navController
                 )
             }
+
+
+            composable(
+                "newsDetail/{newsId}"
+            ) { backStackEntry ->
+                val newsId = backStackEntry.arguments?.getString("newsId")
+                NewsDetailScreen(newsId, navController)
+            }
+
 
         }
     }
