@@ -45,6 +45,30 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.12"
     }
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore/login-release.jks")
+            storePassword = "fit5046"
+            keyAlias = "loginkey"
+            keyPassword = "fit5046"
+        }
+    }
+
+    buildTypes {
+        getByName("debug") {
+            signingConfig = signingConfigs.getByName("release") // ✅ 调试用 release 签名
+        }
+        getByName("release") {
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+    }
+
 }
 
 dependencies {
