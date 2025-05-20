@@ -100,5 +100,15 @@ class UserViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun clearLocalUsers(onComplete: () -> Unit = {}) {
+        viewModelScope.launch(Dispatchers.IO) {
+            repository.clearAllUsers() // 你需确保 repository 有这个方法
+            currentUser = null
+            withContext(Dispatchers.Main) {
+                onComplete()
+            }
+        }
+    }
+
 
 }
