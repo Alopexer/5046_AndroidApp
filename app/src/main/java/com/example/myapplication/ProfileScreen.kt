@@ -1,8 +1,10 @@
 package com.example.myapplication
 
-import android.util.Log
+import android.net.Uri
 import android.widget.Toast
-import androidx.compose.foundation.background
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,7 +20,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Login
 import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Save
@@ -45,11 +47,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.myapplication.data.AppDatabase
+import coil.compose.AsyncImage
 import com.example.myapplication.data.RunningPlanViewModel
-import com.example.myapplication.data.UserEntity
 import com.example.myapplication.viewmodel.UserViewModel
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -71,18 +71,26 @@ fun ProfileScreen(
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val db = remember { AppDatabase.getDatabase(context) }
-    val userDao = remember { db.userDao() }
-
     val currentUser = userViewModel.currentUser
 
-    LaunchedEffect(Unit) {
+    var avatarUri by remember { mutableStateOf<Uri?>(null) }
+
+    val imagePicker = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        avatarUri = uri
+    }
+
+    LaunchedEffect(currentUser) {
         currentUser?.let {
             username = it.username
             age = it.age.toString()
             gender = it.gender
             height = it.height.toString()
             weight = it.weight.toString()
+            if (it.avatarUri.isNotBlank()) {
+                avatarUri = Uri.parse(it.avatarUri)
+            }
         }
     }
 
@@ -92,21 +100,37 @@ fun ProfileScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-
+        // 用户头像
         Box(
             modifier = Modifier
-                .size(100.dp)
+                .size(120.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                .then(
+                    if (isEditing) Modifier.clickable { imagePicker.launch("image/*") }
+                    else Modifier // 不响应点击
+                )
                 .align(Alignment.CenterHorizontally),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = "Photo",
-                modifier = Modifier.size(60.dp)
-            )
+            if (avatarUri != null) {
+                AsyncImage(
+                    model = avatarUri,
+                    contentDescription = "Avatar",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.Person,
+                    contentDescription = null,
+                    modifier = Modifier.size(60.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
         }
+
+        Text("Profile", style = MaterialTheme.typography.headlineSmall)
 
         ProfileItem(label = "Email", value = currentUser?.email ?: "")
 
@@ -198,41 +222,35 @@ fun ProfileScreen(
             ProfileItem(label = "Weight", value = weight, unit = "kg")
         }
 
+        Spacer(modifier = Modifier.height(8.dp))
+
         if (isEditing) {
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     onClick = {
                         isEditing = false
-                        val current = userViewModel.currentUser
-
-                        Log.d("Profile", "Before Update: $current")
-
-                        current?.let {
+                        currentUser?.let {
                             val updatedUser = it.copy(
                                 username = username,
                                 age = age.toIntOrNull() ?: 0,
                                 gender = gender,
                                 height = height.toIntOrNull() ?: 0,
-                                weight = weight.toIntOrNull() ?: 0
+                                weight = weight.toIntOrNull() ?: 0,
+                                avatarUri = avatarUri?.toString() ?: ""
                             )
-
                             userViewModel.updateUser(updatedUser) { success ->
-                                if (success) {
-                                    Log.d("Profile", "Update Success: $updatedUser")
-                                    Toast.makeText(context, "Profile updated", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, "Update failed", Toast.LENGTH_SHORT).show()
-                                }
+                                Toast.makeText(
+                                    context,
+                                    if (success) "Profile updated" else "Update failed",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Icon(
-                        Icons.Default.Save,
-                        contentDescription = "Save",
-                        Modifier.padding(end = 4.dp)
-                    )
+                    Icon(Icons.Default.Save, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text("Save")
                 }
 
@@ -246,28 +264,23 @@ fun ProfileScreen(
         } else {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
+                horizontalArrangement = Arrangement.Center
             ) {
                 Button(onClick = { isEditing = true }) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Edit",
-                        Modifier.padding(end = 4.dp)
-                    )
+                    Icon(Icons.Default.Edit, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text("Edit")
                 }
                 Spacer(modifier = Modifier.width(12.dp))
-                Button(onClick = { userViewModel.logout() }) {
-                    Icon(Icons.Default.Logout, contentDescription = "Logout")
+                OutlinedButton(onClick = { userViewModel.logout() }) {
+                    Icon(Icons.Default.Logout, contentDescription = null)
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text("Logout")
                 }
             }
         }
     }
-
 }
-
 
 @Composable
 fun ProfileItem(label: String, value: String, unit: String? = null) {
