@@ -180,7 +180,7 @@ fun AddTestPlanButton(
                 val paceMinutes = duration.toDouble() / distance
                 val paceMin = paceMinutes.toInt()
                 val paceSec = ((paceMinutes - paceMin) * 60).toInt()
-                val paceFormatted = "${paceMin}'${String.format("%02d", paceSec)}\"/km"
+                val paceFormatted = "${paceMin}'${String.format("%02d", paceSec)}\""
 
                 val testPlan = RunningPlan(
                     dateTime = now,
