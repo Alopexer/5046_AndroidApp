@@ -37,6 +37,7 @@ import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
 import com.example.myapplication.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.Color
 
 
 @Composable
@@ -76,6 +77,7 @@ fun LoginRegisterScreen(
     var showPassword by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
+    var successMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -172,6 +174,11 @@ fun LoginRegisterScreen(
                 )
             }
 
+            if (successMessage.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = successMessage, color = Color(0xFF4CAF50)) // 绿色
+            }
+
             Spacer(modifier = Modifier.height(12.dp))
 
             Button(
@@ -191,7 +198,7 @@ fun LoginRegisterScreen(
                                 username.isBlank() -> errorText = "Username is required"
                                 !isValidPhone(phone) -> errorText = "Invalid phone number"
                                 !isValidEmail(email) -> errorText = "Invalid email format"
-                                !isStrongPassword(password) -> errorText = "Password too weak"
+                                !isStrongPassword(password) -> errorText = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number."
                                 password != confirmPassword -> errorText = "Passwords do not match"
                                 email.endsWith("@gmail.com") -> errorText = "Please login with Google!"
                                 else -> {
@@ -199,10 +206,12 @@ fun LoginRegisterScreen(
                                     userViewModel.register(newUser) { success ->
                                         if (success) {
                                             isLogin = true
-                                            errorText = "Registered successfully. Please log in."
+                                            successMessage = "Registered successfully. Please log in."
                                         } else {
                                             errorText = "Username or email already exists"
                                         }
+
+
                                     }
                                 }
                             }
