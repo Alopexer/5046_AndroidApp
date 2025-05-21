@@ -57,7 +57,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            signingConfig = signingConfigs.getByName("release") // ✅ 调试用 release 签名
+            signingConfig = signingConfigs.getByName("release")
         }
         getByName("release") {
             signingConfig = signingConfigs.getByName("release")
@@ -97,5 +97,6 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation("com.google.android.gms:play-services-auth:20.7.0")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
 }

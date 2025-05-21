@@ -37,6 +37,7 @@ import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
 import com.example.myapplication.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.ui.graphics.Color
 
 
 @Composable
@@ -54,7 +55,8 @@ fun LoginScreen(
         onLoginSuccess = onLoginSuccess,
         userViewModel = userViewModel,
         runningPlanViewModel = runningPlanViewModel,
-        onGoogleLoginClick = onGoogleLoginClick)
+        onGoogleLoginClick = onGoogleLoginClick
+    )
 }
 
 @Composable
@@ -75,159 +77,186 @@ fun LoginRegisterScreen(
     var showPassword by remember { mutableStateOf(false) }
     var errorText by remember { mutableStateOf("") }
     val scope = rememberCoroutineScope()
-    //val userViewModel: UserViewModel = viewModel()
+    var successMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
+            .padding(horizontal = 24.dp)
+            .padding(top = 64.dp, bottom = 32.dp),
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(
-            text = if (isLogin) "Login" else "Register",
-            style = MaterialTheme.typography.headlineMedium
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        if (!isLogin) {
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+        Column {
+            Text(
+                text = if (isLogin) "Welcome Back" else "Create Account",
+                style = MaterialTheme.typography.headlineLarge,
+                color = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = phone,
-                onValueChange = { phone = it },
-                label = { Text("Phone (e.g. 0412345678)") },
-                modifier = Modifier.fillMaxWidth(),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-        }
+            Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("Email") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-            trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
-                    Icon(
-                        imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
-                    )
-                }
+            if (!isLogin) {
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    singleLine = true,
+                    shape = MaterialTheme.shapes.medium
+                )
+                OutlinedTextField(
+                    value = phone,
+                    onValueChange = { phone = it },
+                    label = { Text("Phone (e.g. 0412345678)") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    shape = MaterialTheme.shapes.medium
+                )
             }
-        )
 
-        if (!isLogin) {
-            Spacer(modifier = Modifier.height(16.dp))
             OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
-                modifier = Modifier.fillMaxWidth(),
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
                 singleLine = true,
-                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation()
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                shape = MaterialTheme.shapes.medium
             )
-        }
 
-        if (errorText.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(text = errorText, color = MaterialTheme.colorScheme.error)
-        }
+            OutlinedTextField(
+                value = password,
+                onValueChange = { password = it },
+                label = { Text("Password") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 6.dp),
+                singleLine = true,
+                visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { showPassword = !showPassword }) {
+                        Icon(
+                            imageVector = if (showPassword) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = null
+                        )
+                    }
+                },
+                shape = MaterialTheme.shapes.medium
+            )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            if (!isLogin) {
+                OutlinedTextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 6.dp),
+                    singleLine = true,
+                    visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+                    shape = MaterialTheme.shapes.medium
+                )
+            }
 
-        Button(
-            onClick = {
-                errorText = ""
-                scope.launch {
-                    if (isLogin) {
-                        userViewModel.login(email, password) { user ->
-                            if (user != null) {
-                                onLoginSuccess(user.email)
+            if (errorText.isNotEmpty()) {
+                Text(
+                    text = errorText,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
 
-                            } else {
-                                errorText = "Invalid email or password"
+            if (successMessage.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(text = successMessage, color = Color(0xFF4CAF50)) // 绿色
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Button(
+                onClick = {
+                    errorText = ""
+                    scope.launch {
+                        if (isLogin) {
+                            userViewModel.login(email, password) { user ->
+                                if (user != null) {
+                                    onLoginSuccess(user.email)
+                                } else {
+                                    errorText = "Invalid email or password"
+                                }
                             }
-                        }
-                    } else {
-                        when {
-                            username.isBlank() -> errorText = "Username is required"
-                            !isValidPhone(phone) -> errorText = "Invalid phone number"
-                            !isValidEmail(email) -> errorText = "Invalid email format"
-                            !isStrongPassword(password) -> errorText = "Password too weak"
-                            password != confirmPassword -> errorText = "Passwords do not match"
-                            else -> {
-                                val newUser = UserEntity(
-                                    username = username,
-                                    phone = phone,
-                                    email = email,
-                                    password = password
-                                )
-                                userViewModel.register(newUser) { success ->
-                                    if (success) {
-                                        isLogin = true
-                                        errorText = "Registered successfully. Please log in."
-                                    } else {
-                                        errorText = "Username or email already exists"
+                        } else {
+                            when {
+                                username.isBlank() -> errorText = "Username is required"
+                                !isValidPhone(phone) -> errorText = "Invalid phone number"
+                                !isValidEmail(email) -> errorText = "Invalid email format"
+                                !isStrongPassword(password) -> errorText = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number."
+                                password != confirmPassword -> errorText = "Passwords do not match"
+                                email.endsWith("@gmail.com") -> errorText = "Please login with Google!"
+                                else -> {
+                                    val newUser = UserEntity(username = username, phone = phone, email = email, password = password)
+                                    userViewModel.register(newUser) { success ->
+                                        if (success) {
+                                            isLogin = true
+                                            successMessage = "Registered successfully. Please log in."
+                                        } else {
+                                            errorText = "Username or email already exists"
+                                        }
+
+
                                     }
                                 }
                             }
                         }
                     }
-                }
-            },
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text(text = if (isLogin) "Sign In" else "Sign Up")
+            }
+
+            Text(
+                text = "     ",
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.padding(vertical = 6.dp)
+            )
+
+            Button(
+                onClick = { onGoogleLoginClick() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = MaterialTheme.shapes.medium
+            ) {
+                Text("Sign in with Google")
+            }
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = if (isLogin) "Login" else "Register")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = { onGoogleLoginClick() },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Sign in with Google")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            // 登录/注册模式切换按钮
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(text = if (isLogin) "Don't have an account?" else "Already have an account?")
-            Spacer(modifier = Modifier.width(8.dp))
+            Text(text = if (isLogin) "Don't have an account?" else "Already have one?")
+            Spacer(modifier = Modifier.width(6.dp))
             TextButton(onClick = {
                 isLogin = !isLogin
                 password = ""
                 confirmPassword = ""
                 errorText = ""
             }) {
-                Text(text = if (isLogin) "Register" else "Login")
+                Text(text = if (isLogin) "Sign Up" else "Sign In")
             }
         }
     }
