@@ -81,8 +81,8 @@ fun RunningScreen(
             },
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .fillMaxWidth(0.3f),
-            shape = RoundedCornerShape(12.dp)
+                .fillMaxWidth(0.3f)
+            //shape = RoundedCornerShape(12.dp)
         ) {
             Icon(Icons.Default.DirectionsRun, contentDescription = null, Modifier.padding(end = 8.dp))
             Text("Run!", fontSize = 16.sp)
@@ -112,18 +112,13 @@ fun RunningScreen(
         Button(
             onClick = { navController.navigate("run/run-plan") },
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            shape = RoundedCornerShape(12.dp)
+            //shape = RoundedCornerShape(12.dp)
         ) {
             Icon(Icons.Default.Add, contentDescription = "Add")
             Text("New")
         }
 
         Spacer(modifier = Modifier.height(12.dp))
-        AddTestPlanButton(
-            userViewModel = userViewModel,
-            runningPlanViewModel = runningPlanViewModel,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
-        )
     }
 }
 
@@ -154,54 +149,5 @@ fun RunningPlanItemCard(plan: RunningPlan, onStart: () -> Unit, onDelete: () -> 
                 }
             }
         }
-    }
-}
-
-@Composable
-fun AddTestPlanButton(
-    userViewModel: UserViewModel,
-    runningPlanViewModel: RunningPlanViewModel,
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-
-    Button(
-        onClick = {
-            val email = userViewModel.currentUser?.email
-
-            if (!email.isNullOrBlank()) {
-                val now = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date())
-
-                val distance = 15.0
-                val duration = 100
-                val calories = 400
-
-                // pace = duration / distance（单位：min/km）
-                val paceMinutes = duration.toDouble() / distance
-                val paceMin = paceMinutes.toInt()
-                val paceSec = ((paceMinutes - paceMin) * 60).toInt()
-                val paceFormatted = "${paceMin}'${String.format("%02d", paceSec)}\""
-
-                val testPlan = RunningPlan(
-                    dateTime = now,
-                    distance = distance,
-                    duration = duration,
-                    email = email,
-                    isCompleted = true,
-                    calories = calories,
-                    pace = paceFormatted
-                )
-
-                runningPlanViewModel.insert(testPlan)
-
-                Toast.makeText(context, "测试计划已添加", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(context, "请先登录以生成测试计划", Toast.LENGTH_SHORT).show()
-            }
-        },
-        modifier = modifier
-    ) {
-        Icon(Icons.Default.Add, contentDescription = "Add Test Plan")
-        Text("Add Test Plan")
     }
 }

@@ -47,7 +47,7 @@ class RunningPlanViewModel(application: Application) : AndroidViewModel(applicat
 
     fun insertAndSetCurrent(plan: RunningPlan) = viewModelScope.launch(Dispatchers.IO) {
         val generatedId = repository.insertAndReturnId(plan)
-        val completePlan = plan.copy(id = generatedId.toInt()) // Room 返回的是 Long
+        val completePlan = plan.copy(id = generatedId.toInt())
         _currentRunningPlan.value = completePlan
     }
 

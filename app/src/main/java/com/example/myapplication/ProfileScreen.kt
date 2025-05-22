@@ -100,14 +100,14 @@ fun ProfileScreen(
             .padding(24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 用户头像
+        // User Photo
         Box(
             modifier = Modifier
                 .size(120.dp)
                 .clip(CircleShape)
                 .then(
                     if (isEditing) Modifier.clickable { imagePicker.launch("image/*") }
-                    else Modifier // 不响应点击
+                    else Modifier
                 )
                 .align(Alignment.CenterHorizontally),
             contentAlignment = Alignment.Center

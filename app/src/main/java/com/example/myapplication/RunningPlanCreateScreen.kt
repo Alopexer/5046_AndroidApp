@@ -61,7 +61,7 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
                         calendar.set(Calendar.MONTH, month)
                         calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth)
 
-                        // 打开时间选择器
+                        // Time selector
                         TimePickerDialog(
                             context,
                             { _, hourOfDay, minute ->
@@ -104,7 +104,7 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
                 style = MaterialTheme.typography.bodyLarge.copy(
                     fontWeight = FontWeight.Bold
                 ),
-                modifier = Modifier.width(110.dp) // 固定宽度避免挤压
+                modifier = Modifier.width(110.dp)
             )
 
             OutlinedTextField(

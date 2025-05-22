@@ -15,108 +15,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 
-
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            MyApplicationTheme {
-//                Surface {
-//                    val navController = rememberNavController()
-//                    val userViewModel: UserViewModel = viewModel()
-//                    val runningPlanViewModel: RunningPlanViewModel = viewModel()
-//
-//                    NavHost(navController = navController, startDestination = "login") {
-//                        composable("login") {
-//                            LoginScreen(
-//                                navController = navController,
-//                                goLogin = true,
-//                                onLoginSuccess = { email ->
-//                                    navController.navigate("home") {
-//                                        popUpTo("login") { inclusive = true }
-//                                    }
-//                                },
-//                                userViewModel = userViewModel,
-//                                runningPlanViewModel = runningPlanViewModel
-//                            )
-//                        }
-//                        composable("home") {
-//                            if (userViewModel.isLoggedIn()) {
-//                                HomeScreen()
-//                            } else {
-//                                navController.navigate("login")
-//                            }
-//                        }
-//                        composable("run") {
-//                            if (userViewModel.isLoggedIn()) {
-//                                RunningScreen(navController)
-//                            } else {
-//                                navController.navigate("login")
-//                            }
-//                        }
-//                        composable("profile") {
-//                            ProfileScreen(
-//                                navController = navController,
-//                                email = userViewModel.currentUser?.email ?: "",
-//                                isLogin = userViewModel.isLoggedIn()
-//                            )
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            MyApplicationTheme {
-//                val userViewModel: UserViewModel = viewModel()
-//                val runningPlanViewModel: RunningPlanViewModel = viewModel()
-//                var isLoggedIn by remember { mutableStateOf(userViewModel.isLoggedIn()) }
-//                var userEmail by remember { mutableStateOf(userViewModel.currentUser?.email ?: "") }
-//
-//                Surface {
-//                    if (!isLoggedIn) {
-//                        LoginScreen(
-//                            navController = null,
-//                            goLogin = true,
-//                            onLoginSuccess = { email ->
-//                                userEmail = email
-//                                isLoggedIn = true
-//                            },
-//                            userViewModel = userViewModel,
-//                            runningPlanViewModel = runningPlanViewModel
-//                        )
-//                    } else {
-//                        MainScreen(userEmail = userEmail, userViewModel = userViewModel, runningPlanViewModel = runningPlanViewModel)
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-
-//class MainActivity : ComponentActivity() {
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        setContent {
-//            MyApplicationTheme {
-//                val userViewModel: UserViewModel = viewModel()
-//                val runningPlanViewModel: RunningPlanViewModel = viewModel()
-//
-//                // ✅ 只渲染 MainScreen，它负责判断是否显示 LoginScreen
-//                MainScreen(
-//                    userViewModel = userViewModel,
-//                    runningPlanViewModel = runningPlanViewModel
-//                )
-//            }
-//        }
-//    }
-//}
-
 class MainActivity : ComponentActivity() {
     private lateinit var googleSignInClient: GoogleSignInClient
 
@@ -133,7 +31,6 @@ class MainActivity : ComponentActivity() {
                     phone = "N/A",
                     password = "GOOGLE_AUTH"
                 )
-                // ⚠️ 此处不能用外部 userViewModel，传给下面的 lambda
                 signInCallback?.invoke(newUser)
             }
         } catch (e: ApiException) {
@@ -156,14 +53,11 @@ class MainActivity : ComponentActivity() {
                 val userViewModel: UserViewModel = viewModel()
                 val runningPlanViewModel: RunningPlanViewModel = viewModel()
 
-                // ✅ 观察 currentUser 是否为 null
                 val currentUser = userViewModel.currentUser
                 if (currentUser == null) {
-                    // ⚠️ 将回调设定给外部变量
                     signInCallback = { userEntity ->
                         userViewModel.loginOrRegisterByGoogle(userEntity) { success ->
                             Log.d("GOOGLE_LOGIN", "User login complete: $success")
-                            // Compose 会自动刷新 UI
                         }
                     }
 
