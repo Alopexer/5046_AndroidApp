@@ -178,7 +178,7 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
                         )
                         runningPlanViewModel.insert(newPlan)
                         navController.popBackStack()
-                        "" // 清空错误信息
+                        ""
                     }
                 }
             },
