@@ -245,7 +245,6 @@ fun MapScreen(
                 Button(onClick = {
                     isRunning = true
                     isPaused = false
-                    Log.d("MapScreen","Current: $cr")
                 }) { Text("Start") }
                 Button(onClick = { isPaused = true }) { Text("Pause") }
                 Button(onClick = {
@@ -271,9 +270,6 @@ fun MapScreen(
                             route = routeString
                         )
 
-                        // ✅ 添加调试日志
-                        Log.d("MapScreen", "Before update: $it")
-                        Log.d("MapScreen", "Updated plan: $updated")
                         runningPlanViewModel.update(updated)
                         // Clear current plan
                         runningPlanViewModel.setCurrentRunningPlan(null)
