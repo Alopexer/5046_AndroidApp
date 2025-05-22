@@ -37,6 +37,7 @@ import androidx.navigation.NavController
 import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
 import com.example.myapplication.viewmodel.UserViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 
@@ -200,13 +201,17 @@ fun LoginRegisterScreen(
                                 !isValidEmail(email) -> errorText = "Invalid email format"
                                 !isStrongPassword(password) -> errorText = "Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, and one number."
                                 password != confirmPassword -> errorText = "Passwords do not match"
-                                email.endsWith("@gmail.com") -> errorText = "Please login with Google!"
+                                email.lowercase().endsWith("@gmail.com") -> errorText = "Please login with Google!"
                                 else -> {
                                     val newUser = UserEntity(username = username, phone = phone, email = email, password = password)
                                     userViewModel.register(newUser) { success ->
                                         if (success) {
                                             isLogin = true
                                             successMessage = "Registered successfully. Please log in."
+                                            scope.launch {
+                                                delay(5000)
+                                                successMessage = ""
+                                            }
                                         } else {
                                             errorText = "Email already exists"
                                         }
