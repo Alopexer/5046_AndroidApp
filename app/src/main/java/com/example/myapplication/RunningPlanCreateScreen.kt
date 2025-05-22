@@ -37,6 +37,7 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
     var selectedDateTime by remember { mutableStateOf("") }
     val userEmail: String = "test@gmail.com"
     val calendar = remember { Calendar.getInstance() }
+    var errorMessage by remember { mutableStateOf("") }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -142,6 +143,17 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
             )
         }
 
+        if (errorMessage.isNotEmpty()) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .padding(top = 6.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
+
 
         Button(
             onClick = {
@@ -149,22 +161,25 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
                 val distanceValue = distance.toDoubleOrNull()
                 val durationValue = duration.toIntOrNull()
 
-                if (selectedDateTime.isNotBlank() && distanceValue != null && durationValue != null && !email.isNullOrBlank()) {
-                    val newPlan = RunningPlan(
-                        dateTime = selectedDateTime,
-                        distance = distanceValue,
-                        duration = durationValue,
-                        email = email,
-                        isCompleted = false
-                    )
-                    runningPlanViewModel.insert(newPlan)
-                    navController.popBackStack()
-                } else {
-                    Toast.makeText(
-                        context,
-                        "Please enter valid values: '$distance', '$duration', '$selectedDateTime', '$email'",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                errorMessage = when {
+                    selectedDateTime.isBlank() -> "Please select a start date and time."
+                    distance.isBlank() -> "Please enter the distance."
+                    distanceValue == null -> "Distance must be a number."
+                    duration.isBlank() -> "Please enter the duration."
+                    durationValue == null -> "Duration must be an integer."
+                    email.isNullOrBlank() -> "User email not found. Please log in."
+                    else -> {
+                        val newPlan = RunningPlan(
+                            dateTime = selectedDateTime,
+                            distance = distanceValue,
+                            duration = durationValue,
+                            email = email,
+                            isCompleted = false
+                        )
+                        runningPlanViewModel.insert(newPlan)
+                        navController.popBackStack()
+                        "" // 清空错误信息
+                    }
                 }
             },
             modifier = Modifier.align(Alignment.CenterHorizontally)
@@ -172,7 +187,6 @@ fun RunningPlanCreateScreen(navController: NavController, userViewModel: UserVie
             Icon(Icons.Default.Save, contentDescription = "Back")
             Text("Save")
         }
-
 
         Button(
             onClick = {
