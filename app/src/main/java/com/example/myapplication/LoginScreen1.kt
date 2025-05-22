@@ -28,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -37,7 +38,6 @@ import com.example.myapplication.data.RunningPlanViewModel
 import com.example.myapplication.data.UserEntity
 import com.example.myapplication.viewmodel.UserViewModel
 import kotlinx.coroutines.launch
-import androidx.compose.ui.graphics.Color
 
 
 @Composable
@@ -208,11 +208,12 @@ fun LoginRegisterScreen(
                                             isLogin = true
                                             successMessage = "Registered successfully. Please log in."
                                         } else {
-                                            errorText = "Username or email already exists"
+                                            errorText = "Email already exists"
                                         }
-
-
                                     }
+
+
+
                                 }
                             }
                         }
