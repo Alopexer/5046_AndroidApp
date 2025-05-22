@@ -228,14 +228,23 @@ fun ProfileScreen(
             Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Button(
                     onClick = {
+                        val ageInt = age.toIntOrNull() ?: 0
+                        val heightInt = height.toIntOrNull() ?: 0
+                        val weightInt = weight.toIntOrNull() ?: 0
+
+                        if (ageInt !in 8..120 || heightInt !in 100..250 || weightInt !in 15..200) {
+                            Toast.makeText(context, "Invalid personal data", Toast.LENGTH_SHORT).show()
+                            return@Button
+                        }
+
                         isEditing = false
                         currentUser?.let {
                             val updatedUser = it.copy(
                                 username = username,
-                                age = age.toIntOrNull() ?: 0,
+                                age = ageInt,
                                 gender = gender,
-                                height = height.toIntOrNull() ?: 0,
-                                weight = weight.toIntOrNull() ?: 0,
+                                height = heightInt,
+                                weight = weightInt,
                                 avatarUri = avatarUri?.toString() ?: ""
                             )
                             userViewModel.updateUser(updatedUser) { success ->
