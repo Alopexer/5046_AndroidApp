@@ -50,6 +50,7 @@ fun NewsDetailScreen(newsId: String?, navController: NavController) {
             )
         }
     ) { innerPadding ->
+
         Column(
             modifier = Modifier
                 .padding(innerPadding)
@@ -86,6 +87,7 @@ fun NewsDetailScreen(newsId: String?, navController: NavController) {
         }
     }
 }
+
 
 @Composable
 fun NewsContent(title: String, tag: String, imageRes: Int, content: String) {
