@@ -113,7 +113,7 @@ fun HealthSummarySection(latestPlan: RunningPlan?) {
 
             if (latestPlan != null) {
                 Row(modifier = Modifier.fillMaxWidth()) {
-                    HealthBox("Distance", "${latestPlan.distance} km", Color(0xFFE3F2FD), Modifier.weight(1f))
+                    HealthBox("Distance", "${"%.2f".format(latestPlan.distance)} km", Color(0xFFE3F2FD), Modifier.weight(1f))
                     Spacer(modifier = Modifier.width(8.dp))
                     HealthBox("Calories", "${latestPlan.calories} kcal", Color(0xFFFFEBEE), Modifier.weight(1f))
                 }
@@ -123,7 +123,7 @@ fun HealthSummarySection(latestPlan: RunningPlan?) {
                 Row(modifier = Modifier.fillMaxWidth()) {
                     HealthBox("Duration", "${latestPlan.duration} min", Color(0xFFE8F5E9), Modifier.weight(1f))
                     Spacer(modifier = Modifier.width(8.dp))
-                    HealthBox("Pace", "${latestPlan.pace} min/km", Color(0xFFFFF3E0), Modifier.weight(1f))
+                    HealthBox("Pace", "${latestPlan.pace} ", Color(0xFFFFF3E0), Modifier.weight(1f))
                 }
             } else {
                 Text("No running record found.", color = Color.Gray)

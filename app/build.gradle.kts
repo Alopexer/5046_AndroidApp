@@ -82,7 +82,6 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.compose.material3:material3:1.2.0")
-//    implementation("com.mapbox.maps:android:10.15.1")
     implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("androidx.compose.material:material-icons-extended:1.5.4")
